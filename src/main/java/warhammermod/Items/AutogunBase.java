@@ -34,11 +34,12 @@ public abstract class AutogunBase extends GunBase implements IReloadItem {
         }
     }
 
-    public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {//implement infinity if possible
+    public boolean onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {//implement infinity if possible
         if (entityLiving instanceof PlayerEntity player && !worldIn.isClient() && !((PlayerEntity) entityLiving).isCreative()) {
 
             if(isCharged(stack)) {
                 setCharge(stack,getCharge(stack)-(getMaxUseTime()-timeLeft)/getFireRate());
+                return true;
             }else{
 
                 stack.damage(1, player, LivingEntity.getSlotForHand(player.getActiveHand()));
@@ -46,9 +47,12 @@ public abstract class AutogunBase extends GunBase implements IReloadItem {
                 if ((ammoreserve >= 0)) {
                     this.findAmmo(player).decrement(Math.min(ammoreserve,AmmoConsumption));
                     setCharge(stack,(int)((float)Magsize/AmmoConsumption* Math.min(ammoreserve,AmmoConsumption)));
+                    return true;
                 }
+
             }
         }
+        return false;
     }
     public int getFireRate() {
         return FireRate;

@@ -41,7 +41,7 @@ public class WarpBulletEntity extends ProjectileBase {
     {
         super.tick();
 
-        if (delayedtick<=0 && this.getWorld().isClient() && !this.inGround)
+        if (delayedtick<=0 && this.getWorld().isClient() && !this.isInGround())
         {
             delayedtick=3;
             spawnColoredParticles();

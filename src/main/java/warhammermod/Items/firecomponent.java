@@ -11,7 +11,7 @@ public record firecomponent(int firecount) {//test adding component firing rotat
     public static final firecomponent DEFAULT = new firecomponent(0);
     public static final Codec<firecomponent> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                            Codecs.NONNEGATIVE_INT.fieldOf("firing").forGetter(firecomponent::firecount)
+                            Codecs.POSITIVE_INT.fieldOf("firing").forGetter(firecomponent::firecount)
                     )
                     .apply(instance, firecomponent::new)
     );

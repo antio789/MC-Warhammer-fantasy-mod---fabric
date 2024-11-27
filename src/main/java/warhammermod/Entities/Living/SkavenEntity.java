@@ -18,6 +18,7 @@ import net.minecraft.entity.mob.PatrolEntity;
 import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.MerchantEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -263,10 +264,10 @@ public class SkavenEntity extends PatrolEntity implements SkavenRangedUser {
          * attributes
          */
     public void updateSkavenAttributes(double speed,double health,double armor,double AD){
-        this.getAttributeInstance(EntityAttributes.GENERIC_MAX_HEALTH).setBaseValue(health);
-        this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).setBaseValue(speed);
-        this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(armor);
-        this.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(AD);
+        this.getAttributeInstance(EntityAttributes.MAX_HEALTH).setBaseValue(health);
+        this.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED).setBaseValue(speed);
+        this.getAttributeInstance(EntityAttributes.ARMOR).setBaseValue(armor);
+        this.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE).setBaseValue(AD);
     }
     public void handleAttributes(){
         double speed = 0.26;
@@ -325,20 +326,24 @@ public class SkavenEntity extends PatrolEntity implements SkavenRangedUser {
     }
     private void attackpotions(LivingEntity target){
         Vec3d vec3d = target.getVelocity();
-        double d0 = target.getX() + vec3d.x - this.getX();
-        double d1 = target.getEyeY() - (double)1.1F - this.getY();
-        double d2 = target.getZ() + vec3d.z - this.getZ();
-        double f = Math.sqrt(d0 * d0 + d2 * d2);
+        double d = target.getX() + vec3d.x - this.getX();
+        double e = target.getEyeY() - (double)1.1F - this.getY();
+        double f = target.getZ() + vec3d.z - this.getZ();
+        double g = Math.sqrt(d * d + f * f);
         RegistryEntry<Potion> registryEntry = random.nextBoolean() ? Potions.HARMING : Potions.POISON;
 
-        PotionEntity potionentity = new PotionEntity(this.getWorld(), this);
-        potionentity.setItem(PotionContentsComponent.createStack(Items.LINGERING_POTION, registryEntry));
-        potionentity.setPitch(potionentity.getPitch() - -20.0F);
-        potionentity.setVelocity(d0, d1 + (double)(f * 0.2F), d2, 0.75F, 8.0F);
-        if (!this.isSilent()) {
-            this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_WITCH_THROW, this.getSoundCategory(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F);
+
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            ItemStack itemStack = PotionContentsComponent.createStack(Items.SPLASH_POTION, registryEntry);
+            ProjectileEntity.spawnWithVelocity(PotionEntity::new, serverWorld, itemStack, this, d, e + g * 0.2, g, 0.75F, 8.0F);
         }
-        this.getWorld().spawnEntity(potionentity);
+
+        if (!this.isSilent()) {
+            this.getWorld()
+                    .playSound(
+                            null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_WITCH_THROW, this.getSoundCategory(), 1.0F, 0.8F + this.random.nextFloat() * 0.4F
+                    );
+        }
 
     }
     private void attackEntitywithrifle(LivingEntity target, int damage, float inaccuracy,ItemStack stack){
@@ -392,10 +397,8 @@ public class SkavenEntity extends PatrolEntity implements SkavenRangedUser {
 
     }
 
-    public boolean damage(DamageSource source, float amount){
-        if (!super.damage(source, amount)) {
-            return false;
-        } else if (!(this.getWorld() instanceof ServerWorld serverworld)) {
+    public boolean damage(ServerWorld world,DamageSource source, float amount){
+        if (!super.damage(world, source, amount)) {
             return false;
         } else {
             LivingEntity livingentity = this.getTarget();
@@ -406,8 +409,8 @@ public class SkavenEntity extends PatrolEntity implements SkavenRangedUser {
 
 
 
-            if (livingentity != null && this.getWorld().getDifficulty() == Difficulty.HARD && (double)this.random.nextFloat() < reinforcementchance.get(getSkavenTypePosition())/2 && this.getWorld().getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
-                SkavenEntity skavenEntity = Entityinit.SKAVEN.create(this.getWorld());
+            if (livingentity != null && this.getWorld().getDifficulty() == Difficulty.HARD && (double)this.random.nextFloat() < reinforcementchance.get(getSkavenTypePosition())/2 && world.getGameRules().getBoolean(GameRules.DO_MOB_SPAWNING)) {
+                SkavenEntity skavenEntity = Entityinit.SKAVEN.create(world,SpawnReason.REINFORCEMENT);
                 int i = MathHelper.floor(this.getX());
                 int j = MathHelper.floor(this.getY());
                 int k = MathHelper.floor(this.getZ());
@@ -418,12 +421,12 @@ public class SkavenEntity extends PatrolEntity implements SkavenRangedUser {
                     int k1 = k + MathHelper.nextInt(this.random, 7, 40) * MathHelper.nextInt(this.random, -1, 1);
                     BlockPos blockpos = new BlockPos(i1, j1, k1);
                     EntityType<?> entityType = skavenEntity.getType();
-                    if (!SpawnRestriction.isSpawnPosAllowed(entityType, this.getWorld(), blockpos) || !SpawnRestriction.canSpawn(entityType, serverworld, SpawnReason.REINFORCEMENT, blockpos, this.getWorld().random)) continue;
+                    if (!SpawnRestriction.isSpawnPosAllowed(entityType, this.getWorld(), blockpos) || !SpawnRestriction.canSpawn(entityType, world, SpawnReason.REINFORCEMENT, blockpos, this.getWorld().random)) continue;
                     skavenEntity.setPosition(i1, j1, k1);
                     if (this.getWorld().isPlayerInRange(i1, j1, k1, 7.0) || !this.getWorld().doesNotIntersectEntities(skavenEntity) || !this.getWorld().isSpaceEmpty(skavenEntity) || this.getWorld().containsFluid(skavenEntity.getBoundingBox())) continue;
                     skavenEntity.setTarget(livingentity);
-                    skavenEntity.initialize(serverworld, this.getWorld().getLocalDifficulty(skavenEntity.getBlockPos()), SpawnReason.REINFORCEMENT, null);
-                    serverworld.spawnEntityAndPassengers(skavenEntity);
+                    skavenEntity.initialize(world, this.getWorld().getLocalDifficulty(skavenEntity.getBlockPos()), SpawnReason.REINFORCEMENT, null);
+                    world.spawnEntityAndPassengers(skavenEntity);
                     break;
                 }
             }

@@ -101,7 +101,7 @@ public class WHRegistry {
 
     public static void registerProcessors() {
         //Registry.register(BuiltinRegistries.createWrapperLookup(), new Identifier(reference.modid, "pathschange"), DwarfVillagePools.pathchange);
-        BuiltinRegistries.createWrapperLookup().createRegistryLookup();
+        //BuiltinRegistries.createWrapperLookup().createRegistryLookup();
     }
 
 

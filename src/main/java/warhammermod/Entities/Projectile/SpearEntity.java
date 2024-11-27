@@ -3,6 +3,7 @@ package warhammermod.Entities.Projectile;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.world.World;
@@ -25,14 +26,17 @@ public class SpearEntity extends ProjectileBase {
 
 
     protected void onEntityHit(EntityHitResult entityHitResult){
-        if(throwed_spear!=null) this.dropStack(throwed_spear);
-        super.onEntityHit(entityHitResult);
-
+        if(this.getWorld() instanceof ServerWorld server) {
+            if (throwed_spear != null) this.dropStack(server, throwed_spear);
+            super.onEntityHit(entityHitResult);
+        }
     }
 
     protected void onBlockHit(BlockHitResult p_230299_1_){
-        if(throwed_spear!=null)this.dropStack(throwed_spear);
-        super.onBlockHit(p_230299_1_);
+        if(this.getWorld() instanceof ServerWorld server) {
+            if (throwed_spear != null) this.dropStack(server,throwed_spear);
+            super.onBlockHit(p_230299_1_);
+        }
     }
 
     @Override

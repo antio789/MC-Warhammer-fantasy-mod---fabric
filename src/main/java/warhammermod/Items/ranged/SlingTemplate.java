@@ -10,8 +10,8 @@ import net.minecraft.item.Items;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import warhammermod.Entities.Projectile.StoneEntity;
 import warhammermod.Items.firecomponent;
@@ -51,7 +51,8 @@ public class SlingTemplate extends BowItem {
         return stack.getItem().equals(Items.COBBLESTONE);
     }
 
-    public void onStoppedUsing(ItemStack stack, World world, LivingEntity entity, int timeleft) {
+    @Override
+    public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity entity, int timeleft) {
         if (entity instanceof PlayerEntity player) {
             boolean shoulduseammo = player.getAbilities().creativeMode || ModEnchantmentHelper.getLevel(world, stack, Enchantments.INFINITY) > 0;
             ItemStack itemstack = findAmmo(player);
@@ -101,20 +102,21 @@ public class SlingTemplate extends BowItem {
                     }
 
                     player.incrementStat(Stats.USED.getOrCreateStat(this));
+                    return true;
                 }
             }
         }
+        return false;
     }
 
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity playerIn, Hand hand) {
-        ItemStack itemstack = playerIn.getStackInHand(hand);
+    public ActionResult use(World world, PlayerEntity playerIn, Hand hand) {
         boolean hasammo = !findAmmo(playerIn).isEmpty();
 
         if (!playerIn.getAbilities().creativeMode && !hasammo) {
-            return TypedActionResult.fail(itemstack);
+            return ActionResult.FAIL;
         } else {
             playerIn.setCurrentHand(hand);
-            return TypedActionResult.consume(itemstack);
+            return ActionResult.CONSUME;
         }
     }
 

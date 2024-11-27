@@ -10,84 +10,45 @@ import net.minecraft.component.type.ToolComponent;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.MiningToolItem;
-import net.minecraft.item.ToolItem;
+import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import warhammermod.Entities.Projectile.SpearEntity;
 import warhammermod.utils.ModEnchantmentHelper;
 
-import java.util.List;
 import java.util.Random;
 
 
-public class SpearTemplate extends ToolItem {
-    public SpearTemplate(ToolMaterial tier,Settings properties){
-        super(tier,properties.component(DataComponentTypes.TOOL,createToolComponent()));
+public class SpearTemplate extends SwordItem {
+    public SpearTemplate(ToolMaterial tier,Settings settings){
+        super(tier,2,-2,settings);
     }
 
-    private static ToolComponent createToolComponent() {
-        return new ToolComponent(
-                List.of(ToolComponent.Rule.ofAlwaysDropping(List.of(Blocks.COBWEB), 15.0F), ToolComponent.Rule.of(BlockTags.SWORD_EFFICIENT, 1.5F)), 1.0F, 2
-        );
-    }
-    public static AttributeModifiersComponent createAttributeModifiers(ToolMaterial material, float baseAttackDamage, float attackSpeed) {
-        return AttributeModifiersComponent.builder()
-                .add(
-                        EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                        new EntityAttributeModifier(
-                                BASE_ATTACK_DAMAGE_MODIFIER_ID, (double)((float)baseAttackDamage + material.getAttackDamage()), EntityAttributeModifier.Operation.ADD_VALUE
-                        ),
-                        AttributeModifierSlot.MAINHAND
-                )
-                .add(
-                        EntityAttributes.GENERIC_ATTACK_SPEED,
-                        new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, (double)attackSpeed, EntityAttributeModifier.Operation.ADD_VALUE),
-                        AttributeModifierSlot.MAINHAND
-                )
-                .build();
-    }
-
-
-    public boolean canMine(BlockState blockState, World level, BlockPos blockPos, PlayerEntity player) {
-        return !player.isCreative();
-    }
-    @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        return true;
-    }
-
-    @Override
-    public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        stack.damage(1, attacker, EquipmentSlot.MAINHAND);
-    }
-
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity playerIn, Hand handIn)  {
+    public ActionResult use(World world, PlayerEntity playerIn, Hand handIn)  {
         ItemStack stack = playerIn.getStackInHand(handIn);
         if (stack.getDamage() >= stack.getMaxDamage() - 2) {
-            return TypedActionResult.fail(stack);
+            return ActionResult.FAIL;
         } else {
             playerIn.setCurrentHand(handIn);
-            return TypedActionResult.consume(stack);
+            return ActionResult.CONSUME;
         }
     }
 
-        public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
-        if(entityLiving instanceof PlayerEntity){
-            PlayerEntity player = (PlayerEntity)entityLiving;
+    public boolean onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
+        if(entityLiving instanceof PlayerEntity player){
 
-            SpearEntity entity = new SpearEntity(player,worldIn,(float)player.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE),stack);
+            SpearEntity entity = new SpearEntity(player,worldIn,(float)player.getAttributeValue(EntityAttributes.ATTACK_DAMAGE),stack);
             entity.setVelocity(player,player.getPitch(), player.getYaw(), 0.0F, 1.3F, 1.0F);
 
             int i = ModEnchantmentHelper.getLevel(worldIn,stack,Enchantments.SHARPNESS);
@@ -107,10 +68,7 @@ public class SpearTemplate extends ToolItem {
             stack.damage(1, player, LivingEntity.getSlotForHand(player.getActiveHand()));
             player.getInventory().removeOne(stack);
         }
-    }
-
-    public int getMaxUseTime(ItemStack stack) {
-        return 1000;
+        return false;
     }
 
     @Override

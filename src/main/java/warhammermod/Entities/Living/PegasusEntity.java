@@ -6,6 +6,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -121,14 +122,14 @@ public class PegasusEntity extends HorseEntity {
     public PassiveEntity createChild(ServerWorld world, PassiveEntity partner) {
 
         if (partner instanceof DonkeyEntity) {
-            MuleEntity muleEntity = EntityType.MULE.create(world);
+            MuleEntity muleEntity = EntityType.MULE.create(world, SpawnReason.BREEDING);
             if (muleEntity != null) {
                 this.setChildAttributes(partner, muleEntity);
             }
             return muleEntity;
         } else if (partner instanceof PegasusEntity partner1) {//if a partner is mixblood it will create a new one of those, if both then equal chance.
             PegasusEntity pegasus;
-            pegasus = Entityinit.PEGASUS.create(world);
+            pegasus = Entityinit.PEGASUS.create(world,SpawnReason.BREEDING);
             if(pegasus!=null) {
                 if (!partner1.ismixblood() && !this.ismixblood()) {
                     pegasus.setHorseVariant(HorseColor.WHITE, HorseMarking.NONE);
@@ -150,7 +151,7 @@ public class PegasusEntity extends HorseEntity {
         } else if (random.nextFloat() < 0.3) {//small chance to create a colored pegasus 0.15 base7
             System.out.println("making a mixblooded horse");
             HorseEntity mating_partner = (HorseEntity) partner;
-            PegasusEntity pegasus = Entityinit.PEGASUS.create(world);
+            PegasusEntity pegasus = Entityinit.PEGASUS.create(world,SpawnReason.BREEDING);
             if(pegasus==null) return null;
             pegasus.setMixedblood(true);
 
@@ -264,7 +265,7 @@ public class PegasusEntity extends HorseEntity {
                 LivingEntity livingentity = (LivingEntity) this.getControllingPassenger();
                 if (this.getWorld().isClient()) {
                     ClientPlayerEntity player = (ClientPlayerEntity) livingentity;
-                    boolean isjumping = player.input.jumping;
+                    boolean isjumping = player.input.playerInput.jump();
                     if (isjumping) {
                         if (jumpcounter == 0 && !lastpressjump) {
                             jumpcounter = 10;
@@ -378,7 +379,7 @@ public class PegasusEntity extends HorseEntity {
             float f4 = (float) (d4 * 10.0D - 3.0D);
             if (f4 > 0.0F) {
                 //this.playSound(this.getFallSound((int) f4), 1.0F, 1.0F);
-                this.damage(this.getWorld().getDamageSources().flyIntoWall(), f4);
+                this.damage((ServerWorld) this.getWorld(),this.getWorld().getDamageSources().flyIntoWall(), f4);
             }
         }
     }
@@ -386,13 +387,13 @@ public class PegasusEntity extends HorseEntity {
     public void stationnarymovement( LivingEntity livingentity,  float f,double y, float f1){
         ClientPlayerEntity player = (ClientPlayerEntity) livingentity;
         double flap = Math.max(Math.abs(Math.cos(Math.PI * this.age / 25)), 0.5) * 0.4;
-        if (player.input.jumping) {
+        if (player.input.playerInput.jump()) {
             setVelocity(getVelocity().x, flap * this.getJumpVelocity()*1.5, getVelocity().z);
         } else if (pegasus_down.isPressed()) {
-            setVelocity(getVelocity().x, -flap * this.getAttributeValue(EntityAttributes.GENERIC_JUMP_STRENGTH), getVelocity().z);
+            setVelocity(getVelocity().x, -flap * this.getAttributeValue(EntityAttributes.JUMP_STRENGTH), getVelocity().z);
         } else setVelocity(getVelocity().x, (flap - 0.32) * 0.08, getVelocity().z);
 
-        this.setMovementSpeed((float) this.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED).getValue());
+        this.setMovementSpeed((float) this.getAttributeInstance(EntityAttributes.MOVEMENT_SPEED).getValue());
         this.fallDistance = 0;
         movehorse(new Vec3d((double) f * 0.5, y, (double) f1 * 0.5));
     }

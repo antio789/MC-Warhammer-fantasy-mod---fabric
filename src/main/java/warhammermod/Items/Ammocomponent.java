@@ -11,8 +11,8 @@ public record Ammocomponent(int ammocount,int startammo) {//test adding componen
     public static final Ammocomponent DEFAULT = new Ammocomponent(0,0);
     public static final Codec<Ammocomponent> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                            Codecs.NONNEGATIVE_INT.fieldOf("ammo").forGetter(Ammocomponent::ammocount),
-                            Codecs.NONNEGATIVE_INT.fieldOf("magsize").forGetter(Ammocomponent::startammo)
+                            Codecs.POSITIVE_INT.fieldOf("ammo").forGetter(Ammocomponent::ammocount),
+                            Codecs.POSITIVE_INT.fieldOf("magsize").forGetter(Ammocomponent::startammo)
                     )
                     .apply(instance, Ammocomponent::new)
     );

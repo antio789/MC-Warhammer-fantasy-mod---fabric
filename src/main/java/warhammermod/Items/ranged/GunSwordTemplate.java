@@ -7,12 +7,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import warhammermod.Entities.Projectile.Bullet;
 import warhammermod.Items.Ammocomponent;
@@ -36,7 +36,7 @@ public class GunSwordTemplate extends SwordItem implements IReloadItem { //needs
 
 
     public GunSwordTemplate(ToolMaterial tier, int time, int magsize, float damagein){
-        super(tier,(new Settings().attributeModifiers(GunSwordTemplate.createAttributeModifiers(tier,3,-2.4F))));
+        super(tier,3,-2.4F,new Settings());
         damage=damagein;
         timetoreload=time;
         Magsize=magsize;
@@ -65,13 +65,13 @@ public class GunSwordTemplate extends SwordItem implements IReloadItem { //needs
     }
 
 
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity playerIn, Hand hand) {
+    public ActionResult use(World world, PlayerEntity playerIn, Hand hand) {
         ItemStack stack = playerIn.getStackInHand(hand);
         if(isCharged(stack) || playerIn.isCreative()|| !findAmmo(playerIn).isEmpty()){
             playerIn.setCurrentHand(hand);
-            return TypedActionResult.consume(stack);
+            return ActionResult.CONSUME;
         }
-        return TypedActionResult.fail(stack);
+        return ActionResult.FAIL;
     }
 
 
@@ -85,7 +85,7 @@ public class GunSwordTemplate extends SwordItem implements IReloadItem { //needs
     }
 
 
-    public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
+    public boolean onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof PlayerEntity player) {
             if (isCharged(stack) || player.isCreative()) {
                 fire(player,worldIn,stack);
@@ -99,14 +99,17 @@ public class GunSwordTemplate extends SwordItem implements IReloadItem { //needs
                         this.findAmmo(player).decrement(ammoreserve);
                     }
                     setCharge(stack,ammoreserve);
+                    return true;
                 } else {
                     if (infinitylevel == 0) {
                         this.findAmmo(player).decrement(Magsize);
                     }
                     setCharge(stack,Magsize);
+                    return true;
                 }
             }
         }
+        return false;
     }
     public boolean isReadytoFire(ItemStack stack){
         return isCharged(stack);

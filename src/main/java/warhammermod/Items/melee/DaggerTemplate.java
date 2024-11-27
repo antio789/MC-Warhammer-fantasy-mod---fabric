@@ -13,7 +13,6 @@ import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ToolItem;
 import net.minecraft.item.ToolMaterial;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.util.math.BlockPos;
@@ -21,35 +20,15 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-public class DaggerTemplate extends ToolItem {
 
-    public DaggerTemplate(ToolMaterial tier, Item.Settings properties) {
-        super(tier,properties.component(DataComponentTypes.TOOL,createToolComponent()));
+/** not necessary anymore sweeping edge comes from sword tag**/
+public class DaggerTemplate extends Item {
+
+    public DaggerTemplate(ToolMaterial tier, Item.Settings settings) {
+        super(tier.applySwordSettings(settings,0.5f,5));
     }
 
-    private static ToolComponent createToolComponent() {
-        return new ToolComponent(
-                List.of(ToolComponent.Rule.ofAlwaysDropping(List.of(Blocks.COBWEB), 15.0F), ToolComponent.Rule.of(BlockTags.SWORD_EFFICIENT, 1.5F)), 1.0F, 2
-        );
-    }
-    public static AttributeModifiersComponent createAttributeModifiers(ToolMaterial material, float baseAttackDamage, float attackSpeed) {
-        return AttributeModifiersComponent.builder()
-                .add(
-                        EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                        new EntityAttributeModifier(
-                                BASE_ATTACK_DAMAGE_MODIFIER_ID, (double)((float)baseAttackDamage + material.getAttackDamage()), EntityAttributeModifier.Operation.ADD_VALUE
-                        ),
-                        AttributeModifierSlot.MAINHAND
-                )
-                .add(
-                        EntityAttributes.GENERIC_ATTACK_SPEED,
-                        new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, (double)attackSpeed, EntityAttributeModifier.Operation.ADD_VALUE),
-                        AttributeModifierSlot.MAINHAND
-                )
-                .build();
-    }
-
-
+    @Override
     public boolean canMine(BlockState blockState, World level, BlockPos blockPos, PlayerEntity player) {
         return !player.isCreative();
     }

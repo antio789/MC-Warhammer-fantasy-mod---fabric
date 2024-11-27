@@ -44,7 +44,9 @@ public class mainInit implements ModInitializer {
      *
      * TO DO
      *
-     *
+     *no dismount on pegasus in water
+     * skaven patrol spawning too high
+     * skaven sounds
      * code cleanup, unused assets.
      *
      *

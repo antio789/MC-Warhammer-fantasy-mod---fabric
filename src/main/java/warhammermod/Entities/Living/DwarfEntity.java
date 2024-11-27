@@ -50,6 +50,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.GlobalPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.Profilers;
 import net.minecraft.village.*;
 import net.minecraft.village.raid.Raid;
 import net.minecraft.world.LocalDifficulty;
@@ -58,6 +60,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.poi.PointOfInterestStorage;
 import net.minecraft.world.poi.PointOfInterestType;
 import net.minecraft.world.poi.PointOfInterestTypes;
+import org.apache.logging.log4j.core.jmx.Server;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import warhammermod.Entities.Living.AImanager.Data.DwarfProfessionRecord;
@@ -179,7 +182,6 @@ public class DwarfEntity extends MerchantEntity
         }
 
         entityBrain.setTaskList(Activity.CORE, DwarfVillagerTasks.createCoreTasks(dwarfProfession, 0.5F));
-        VillagerProfession villagerProfession = VillagerProfession.NONE;
         entityBrain.setTaskList(Activity.MEET, DwarfVillagerTasks.createMeetTasks(0.5f), ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryModuleState.VALUE_PRESENT)));
         entityBrain.setTaskList(Activity.REST, DwarfVillagerTasks.createRestTasks(0.5f));
         entityBrain.setTaskList(Activity.IDLE, DwarfVillagerTasks.createIdleTasks(0.5f));
@@ -202,11 +204,11 @@ public class DwarfEntity extends MerchantEntity
     }
 
     @Override
-    protected void mobTick() {
-        Raid raid;
-        this.getWorld().getProfiler().push("DwarfBrain");
-        this.getBrain().tick((ServerWorld)this.getWorld(), this);
-        this.getWorld().getProfiler().pop();
+    protected void mobTick(ServerWorld world) {
+        Profiler profiler = Profilers.get();
+        profiler.push("villagerBrain");
+        this.getBrain().tick(world, this);
+        profiler.pop();
         if (this.natural) {
             this.natural = false;
         }
@@ -220,13 +222,16 @@ public class DwarfEntity extends MerchantEntity
                 this.addStatusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 200, 0));
             }
         }
-        if (this.lastCustomer != null && this.getWorld() instanceof ServerWorld) {
-            ((ServerWorld)this.getWorld()).handleInteraction(EntityInteraction.TRADE, this.lastCustomer, this);
-            this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_VILLAGER_HAPPY_PARTICLES);
+        if (this.lastCustomer != null) {
+            world.handleInteraction(EntityInteraction.TRADE, this.lastCustomer, this);
+            world.sendEntityStatus(this, EntityStatuses.ADD_VILLAGER_HAPPY_PARTICLES);
             this.lastCustomer = null;
         }
-        if (!this.isAiDisabled() && this.random.nextInt(100) == 0 && (raid = ((ServerWorld)this.getWorld()).getRaidAt(this.getBlockPos())) != null && raid.isActive() && !raid.isFinished()) {
-            this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_SPLASH_PARTICLES);
+        if (!this.isAiDisabled() && this.random.nextInt(100) == 0) {
+            Raid raid = world.getRaidAt(this.getBlockPos());
+            if (raid != null && raid.isActive() && !raid.isFinished()) {
+                world.sendEntityStatus(this, EntityStatuses.ADD_SPLASH_PARTICLES);
+            }
         }
         if (this.getProfessionID() == DwarfProfessionRecord.Warrior.ID() && this.hasCustomer()) {
             this.resetCustomer();
@@ -234,7 +239,7 @@ public class DwarfEntity extends MerchantEntity
 
         this.setAttacking(brain.hasMemoryModule(MemoryModuleType.ATTACK_TARGET));
 
-        super.mobTick();
+        super.mobTick(world);
     }
 
     public void tick() {
@@ -315,8 +320,9 @@ public class DwarfEntity extends MerchantEntity
     }
 
  */
+
     public DwarfProfessionRecord getProfession(){
-        return this.getRegistryManager().get(WHRegistry.DwarfProfessionKey).stream().filter(p -> p.ID()==getProfessionID()).findFirst().orElse(DwarfProfessionRecord.Warrior);
+        return this.getRegistryManager().getOrThrow(WHRegistry.DwarfProfessionKey).stream().filter(p -> p.ID()==getProfessionID()).findFirst().orElse(DwarfProfessionRecord.Warrior);
     }
 
 
@@ -362,7 +368,7 @@ public class DwarfEntity extends MerchantEntity
 
     protected void updateAttributes(DwarfProfessionRecord prof){
         if(prof.equals(DwarfProfessionRecord.Slayer)){
-            this.getAttributeInstance(EntityAttributes.GENERIC_ARMOR).setBaseValue(0);
+            this.getAttributeInstance(EntityAttributes.ARMOR).setBaseValue(0);
         }
     }
 
@@ -497,7 +503,7 @@ public class DwarfEntity extends MerchantEntity
         int i = MathHelper.floor(this.getX());
         int j = MathHelper.floor(this.getY());
         int k = MathHelper.floor(this.getZ());
-        DwarfEntity dwarfEntity = Entityinit.DWARF.create(world);
+        DwarfEntity dwarfEntity = Entityinit.DWARF.create(world,SpawnReason.BREEDING);
         for(int l = 0; l < 15; ++l) {
             int i1 = i + MathHelper.nextInt(this.random, 2, 6) * MathHelper.nextInt(this.random, -1, 1);
             int j1 = j + MathHelper.nextInt(this.random, 2, 6) * MathHelper.nextInt(this.random, -1, 1);
@@ -528,7 +534,7 @@ public class DwarfEntity extends MerchantEntity
     }
 
     @Override
-    public boolean canGather(ItemStack stack) {
+    public boolean canGather(ServerWorld world,ItemStack stack) {
         Item item = stack.getItem();
         return (WANTED_ITEMS.contains(item) || this.getProfession().gatherableItems().contains(item)) && this.getInventory().canInsert(stack);
     }
@@ -560,7 +566,7 @@ public class DwarfEntity extends MerchantEntity
         if (!itemStack.isOf(Entityinit.DWARF_SPAWN_EGG) && this.isAlive() && !this.hasCustomer() && !this.isSleeping()) {
             if (this.isBaby()) {
                 this.sayNo();
-                return ActionResult.success(this.getWorld().isClient);
+                return ActionResult.SUCCESS;
             } else {
                 if (!this.getWorld().isClient) {
                     boolean bl = this.getOffers().isEmpty();
@@ -579,7 +585,7 @@ public class DwarfEntity extends MerchantEntity
                     this.beginTradeWith(player);
                 }
 
-                return ActionResult.success(this.getWorld().isClient);
+                return ActionResult.SUCCESS;
             }
         } else {
             return super.interactMob(player, hand);
@@ -898,8 +904,8 @@ public class DwarfEntity extends MerchantEntity
     }
 
     @Override
-    protected void loot(ItemEntity item) {
-        InventoryOwner.pickUpItem(this, this, item);
+    protected void loot(ServerWorld world, ItemEntity item) {
+        InventoryOwner.pickUpItem(world, this, this, item);
     }
 
     public boolean wantsToStartBreeding() {

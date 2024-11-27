@@ -133,18 +133,14 @@ public abstract class ProjectileBase extends PersistentProjectileEntity {
             hitentity.setOnFireFor(5);
         }
 
-        if (hitentity.damage(damagesource, fldamage)) {
+        if (hitentity.sidedDamage(damagesource, fldamage)) {
             if (isEnderman) {
                 return;
             }
             if (hitentity instanceof LivingEntity livingentity) {
                 applyspecialeffect(livingentity);
                 if (this.knocklevel > 0) {
-                    double e = Math.max(0.0, 1.0 - livingentity.getAttributeValue(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE));
-                    Vec3d vec3d = this.getVelocity().multiply(1.0D, 0.0D, 1.0D).normalize().multiply((double)this.knocklevel * 0.6D*e);
-                    if (vec3d.lengthSquared() > 0.0D) {
-                        livingentity.addVelocity(vec3d.x, 0.1D, vec3d.z);
-                    }
+                    knockback(livingentity,damagesource);
                 }
                 World hitworld = this.getWorld();
                 if (hitworld instanceof ServerWorld serverworld && shooterentity instanceof LivingEntity) {
@@ -155,7 +151,9 @@ public abstract class ProjectileBase extends PersistentProjectileEntity {
                 if (livingentity != shooterentity && livingentity instanceof PlayerEntity && shooterentity instanceof ServerPlayerEntity && !this.isSilent()) {
                     ((ServerPlayerEntity) shooterentity).networkHandler.sendPacket(new GameStateChangeS2CPacket(GameStateChangeS2CPacket.PROJECTILE_HIT_PLAYER, GameStateChangeS2CPacket.DEMO_OPEN_SCREEN));
                 }
-
+                if (!livingentity.isAlive() && this.piercingKilledEntities != null) {
+                    this.piercingKilledEntities.add(shooterentity);
+                }
             }
 
             this.playSound(SoundEvents.BLOCK_STONE_HIT, 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));

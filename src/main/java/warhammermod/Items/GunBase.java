@@ -8,12 +8,12 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.RangedWeaponItem;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import warhammermod.utils.ModEnchantmentHelper;
@@ -63,13 +63,13 @@ public abstract class GunBase extends RangedWeaponItem implements IReloadItem { 
         return stack.getItem().equals(AmmoType);
     }
 
-    public TypedActionResult<ItemStack> use(World world, PlayerEntity playerIn, Hand hand) {
+    public ActionResult use(World world, PlayerEntity playerIn, Hand hand) {
         ItemStack stack = playerIn.getStackInHand(hand);
         if(isCharged(stack) || playerIn.isCreative()|| !findAmmo(playerIn).isEmpty()){
             playerIn.setCurrentHand(hand);
-            return TypedActionResult.consume(stack);
+            return ActionResult.CONSUME;
         }
-        return TypedActionResult.fail(stack);
+        return ActionResult.FAIL;
     }
 
     @Override
@@ -82,13 +82,15 @@ public abstract class GunBase extends RangedWeaponItem implements IReloadItem { 
     }
 
 
-    public void onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
+    @Override
+    public boolean onStoppedUsing(ItemStack stack, World worldIn, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof PlayerEntity player) {
             if (isCharged(stack) || player.isCreative()) {
                 fire(player,worldIn,stack);
                 if(!player.isCreative())setAmmoused(stack,getCharge(stack)-1);
                 else {
                     stack.set(WHRegistry.AMMO,new Ammocomponent(getCharge(stack),getMagCount(stack)+1));
+                    return true;
                 }
             }
             else if(timetoreload<=getMaxUseTime()-timeLeft) {
@@ -105,8 +107,9 @@ public abstract class GunBase extends RangedWeaponItem implements IReloadItem { 
                     }
                     setCharge(stack,Magsize);
                 }
+                return true;
             }
-        }
+        }return false;
     }
 
     public boolean isReadytoFire(ItemStack stack){

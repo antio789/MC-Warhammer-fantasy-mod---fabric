@@ -12,6 +12,7 @@ import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.task.*;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.GameRules;
 import warhammermod.Entities.Living.AImanager.Data.DwarfProfessionRecord;
 import warhammermod.Entities.Living.AImanager.Data.DwarfTasks.StopPanickingTaskDwarf;
@@ -35,16 +36,19 @@ public class DwarfCombattasks {
         return ImmutableList.of(Pair.of(0, StopPanickingTask.create()),Pair.of(2,MeleeAttackTask.create(20)));
     }
 */
+    /*
     public static ImmutableList<Pair<Integer,?extends Task<? super MobEntity>>> getAttackpackage(DwarfProfessionRecord profession,DwarfEntity dwarf, float speed){
         return ImmutableList.of(Pair.of(0,ForgetAttackTargetTask.create(target -> isPreferredAttackTarget(dwarf,target))), Pair.of(1,MeleeAttackTask.create((int)20)));
     }
+
+     */
 
     public static ImmutableList<Pair<Integer, ? extends Task<? super DwarfEntity>>> createPanicTasks( float speed) {
         float f = speed * 1.2f;
         return ImmutableList.of(Pair.of(0, StopPanickingTaskDwarf.create()),Pair.of(1,RangedApproachTask.create(f)),Pair.of(1,MeleeAttackTask.create(20)),
                 Pair.of(3, GoToRememberedPositionTask.createEntityBased(MemoryModuleType.NEAREST_HOSTILE, (float)f, (int)6, (boolean)false)),
                 Pair.of(3, GoToRememberedPositionTask.createEntityBased(MemoryModuleType.HURT_BY_ENTITY, (float)f, (int)6, (boolean)false)),
-                Pair.of(4, FindWalkTargetTask.create((float)f, (int)2, (int)2)),
+                Pair.of(4, GoToPointOfInterestTask.create((float)f, (int)2, (int)2)),
                 createBusyFollowTask()
         );
 
@@ -56,24 +60,24 @@ public class DwarfCombattasks {
 
 
 
-    public static void onAttacked(DwarfEntity dwarf, LivingEntity attacker) {
+    public static void onAttacked(ServerWorld server, DwarfEntity dwarf, LivingEntity attacker) {
         if (attacker instanceof DwarfEntity) {
             return;
         }
         Brain<DwarfEntity> brain = dwarf.getBrain();
         if (dwarf.isBaby()) {
             brain.remember(MemoryModuleType.AVOID_TARGET, attacker, 100L);
-            if (Sensor.testAttackableTargetPredicateIgnoreVisibility((LivingEntity)dwarf, (LivingEntity)attacker)) {
-                angerAtCloserTargets(dwarf, attacker);
+            if (Sensor.testAttackableTargetPredicateIgnoreVisibility(server, dwarf, attacker)) {
+                angerAtCloserTargets(server, dwarf, attacker);
             }
             return;
         }
-        tryRevenge(dwarf, attacker);
+        tryRevenge(server, dwarf, attacker);
     }
 
-    protected static void angerAtCloserTargets(DwarfEntity dwarf, LivingEntity target) {
+    protected static void angerAtCloserTargets(ServerWorld server, DwarfEntity dwarf, LivingEntity target) {
         getNearbyDwarfs(dwarf).forEach(nearbydwarf -> {
-            angerAtIfCloser(dwarf, target);
+            angerAtIfCloser(server, dwarf, target);
         });
     }
 
@@ -85,56 +89,56 @@ public class DwarfCombattasks {
         return dwarflist;
     }
 
-    private static void angerAtIfCloser(DwarfEntity piglin, LivingEntity target) {
-        Optional<LivingEntity> optional = getAngryAt(piglin);
-        LivingEntity livingEntity = LookTargetUtil.getCloserEntity((LivingEntity)piglin, optional, (LivingEntity)target);
+    private static void angerAtIfCloser(ServerWorld server, DwarfEntity dwarf, LivingEntity target) {
+        Optional<LivingEntity> optional = getAngryAt(dwarf);
+        LivingEntity livingEntity = TargetUtil.getCloserEntity((LivingEntity)dwarf, optional, (LivingEntity)target);
         if (optional.isPresent() && optional.get() == livingEntity) {
             return;
         }
-        becomeAngryWith(piglin, livingEntity);
+        becomeAngryWith(server, dwarf, livingEntity);
     }
 
     private static Optional<LivingEntity> getAngryAt(DwarfEntity dwarf) {
-        return LookTargetUtil.getEntity(dwarf, MemoryModuleType.ANGRY_AT);
+        return TargetUtil.getEntity(dwarf, MemoryModuleType.ANGRY_AT);
     }
 
-    protected static void becomeAngryWith(DwarfEntity dwarf, LivingEntity target) {
-        if (!Sensor.testAttackableTargetPredicateIgnoreVisibility((LivingEntity)dwarf, (LivingEntity)target)) {
+    protected static void becomeAngryWith(ServerWorld server, DwarfEntity dwarf, LivingEntity target) {
+        if (!Sensor.testAttackableTargetPredicateIgnoreVisibility(server, dwarf, target)) {
             return;
         }
         dwarf.getBrain().forget(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
         dwarf.getBrain().remember(MemoryModuleType.ANGRY_AT, target.getUuid(), 600L);
 
-        if (target.getType() == EntityType.PLAYER && dwarf.getWorld().getGameRules().getBoolean(GameRules.UNIVERSAL_ANGER)) {
+        if (target.getType() == EntityType.PLAYER && server.getGameRules().getBoolean(GameRules.UNIVERSAL_ANGER)) {
             dwarf.getBrain().remember(MemoryModuleType.UNIVERSAL_ANGER, true, 600L);
         }
     }
 
-    protected static void tryRevenge(DwarfEntity dwarf, LivingEntity target) {
+    protected static void tryRevenge(ServerWorld server, DwarfEntity dwarf, LivingEntity target) {
         if (dwarf.getBrain().hasActivity(Activity.AVOID)) {
             return;
         }
-        if (!Sensor.testAttackableTargetPredicateIgnoreVisibility((LivingEntity)dwarf, (LivingEntity)target)) {
+        if (!Sensor.testAttackableTargetPredicateIgnoreVisibility(server, (LivingEntity)dwarf, (LivingEntity)target)) {
             return;
         }
-        if (LookTargetUtil.isNewTargetTooFar((LivingEntity)dwarf, (LivingEntity)target, (double)4.0)) {
+        if (TargetUtil.isNewTargetTooFar(dwarf, target, 4.0)) {
             return;
         }
-        if (target.getType() == EntityType.PLAYER && dwarf.getWorld().getGameRules().getBoolean(GameRules.UNIVERSAL_ANGER)) {
-            becomeAngryWithPlayer(dwarf, target);
-            angerNearbyDwarfs(dwarf);
+        if (target.getType() == EntityType.PLAYER && server.getGameRules().getBoolean(GameRules.UNIVERSAL_ANGER)) {
+            becomeAngryWithPlayer(server, dwarf, target);
+            angerNearbyDwarfs(server, dwarf);
         } else {
-            becomeAngryWith(dwarf, target);
-            angerAtCloserTargets(dwarf, target);
+            becomeAngryWith(server,dwarf, target);
+            angerAtCloserTargets(server, dwarf, target);
         }
     }
 
-    private static void becomeAngryWithPlayer(DwarfEntity piglin, LivingEntity player) {
-        Optional<PlayerEntity> optional = getNearestDetectedPlayer(piglin);
+    private static void becomeAngryWithPlayer(ServerWorld server,DwarfEntity dwarf, LivingEntity player) {
+        Optional<PlayerEntity> optional = getNearestDetectedPlayer(dwarf);
         if (optional.isPresent()) {
-            becomeAngryWith(piglin, optional.get());
+            becomeAngryWith(server,dwarf, optional.get());
         } else {
-            becomeAngryWith(piglin, player);
+            becomeAngryWith(server,dwarf, player);
         }
     }
 
@@ -145,21 +149,21 @@ public class DwarfCombattasks {
         return Optional.empty();
     }
 
-    protected static void angerNearbyDwarfs(DwarfEntity dwarf) {
-        getNearbyDwarfs(dwarf).forEach(nearbydwarf -> getNearestDetectedPlayer(nearbydwarf).ifPresent(player -> becomeAngryWith(nearbydwarf, (LivingEntity)player)));
+    protected static void angerNearbyDwarfs(ServerWorld server, DwarfEntity dwarf) {
+        getNearbyDwarfs(dwarf).forEach(nearbydwarf -> getNearestDetectedPlayer(nearbydwarf).ifPresent(player -> becomeAngryWith(server, nearbydwarf, (LivingEntity)player)));
     }
 
-    private static boolean isPreferredAttackTarget(DwarfEntity dwarf, LivingEntity target) {
-        return getPreferredTarget(dwarf).filter(preferredTarget -> preferredTarget == target).isPresent();
+    private static boolean isPreferredAttackTarget(ServerWorld server, DwarfEntity dwarf, LivingEntity target) {
+        return getPreferredTarget(server,dwarf).filter(preferredTarget -> preferredTarget == target).isPresent();
     }
 
 
-    private static Optional<? extends LivingEntity> getPreferredTarget(DwarfEntity dwarf) {
+    private static Optional<? extends LivingEntity> getPreferredTarget(ServerWorld server, DwarfEntity dwarf) {
         Optional optional2;
         Brain brain = dwarf.getBrain();
 
-        Optional optional = LookTargetUtil.getEntity(dwarf, MemoryModuleType.ANGRY_AT);
-        if (optional.isPresent() && Sensor.testAttackableTargetPredicateIgnoreVisibility((LivingEntity)dwarf, (LivingEntity)((LivingEntity)optional.get()))) {
+        Optional optional = TargetUtil.getEntity(dwarf, MemoryModuleType.ANGRY_AT);
+        if (optional.isPresent() && Sensor.testAttackableTargetPredicateIgnoreVisibility(server, dwarf, (LivingEntity)optional.get())) {
             return optional;
         }
         if (brain.hasMemoryModule(MemoryModuleType.UNIVERSAL_ANGER) && (optional2 = brain.getOptionalRegisteredMemory(MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER)).isPresent()) {

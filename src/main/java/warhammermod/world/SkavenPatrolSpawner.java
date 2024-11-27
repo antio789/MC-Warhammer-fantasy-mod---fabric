@@ -94,7 +94,7 @@ public class SkavenPatrolSpawner implements SpecialSpawner {
         if (!PatrolEntity.canSpawn(Entityinit.SKAVEN, world, SpawnReason.PATROL, pos, random)) {
             return false;
         }
-        SkavenEntity patrolEntity = Entityinit.SKAVEN.create(world);
+        SkavenEntity patrolEntity = Entityinit.SKAVEN.create(world,SpawnReason.PATROL);
         if (patrolEntity != null) {
             if (captain) {
                 patrolEntity.setPatrolLeader(true);

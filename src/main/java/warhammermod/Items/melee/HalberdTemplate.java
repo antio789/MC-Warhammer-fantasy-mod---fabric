@@ -11,11 +11,11 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
-import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.UseAction;
 import net.minecraft.world.World;
 import warhammermod.Entities.Projectile.HalberdEntity;
 import warhammermod.utils.ModEnchantmentHelper;
@@ -23,23 +23,22 @@ import warhammermod.utils.ModEnchantmentHelper;
 public class HalberdTemplate extends SwordItem {
     protected float attackDamage;
 
-
-    public HalberdTemplate(ToolMaterial tier, Settings properties) {
-        super(tier, properties.attributeModifiers(HalberdTemplate.createAttributeModifiers(tier,3F,-2.8F)));
+    public HalberdTemplate(ToolMaterial tier, Settings settings) {
+        super(tier,3,-2.8F,settings);
     }
 
-    public TypedActionResult<ItemStack> use(World level, PlayerEntity player, Hand hand) {
+    public ActionResult use(World level, PlayerEntity player, Hand hand) {
        ItemStack itemstack = player.getStackInHand(hand);
         if (itemstack.getDamage() >= itemstack.getMaxDamage() - 2) {
-            return TypedActionResult.fail(itemstack);
+            return ActionResult.FAIL;
         }
         else {
             player.setCurrentHand(hand);
-            return TypedActionResult.consume(itemstack);
+            return ActionResult.CONSUME;
         }
     }
 
-    public void onStoppedUsing(ItemStack stack, World world, LivingEntity entityLiving, int timeLeft) {
+    public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity entityLiving, int timeLeft) {
 
         if(getMaxUseTime(stack)-20>=timeLeft && entityLiving instanceof PlayerEntity){
             PlayerEntity player = (PlayerEntity) entityLiving;
@@ -60,31 +59,15 @@ public class HalberdTemplate extends SwordItem {
             world.spawnEntity(entity);
             world.playSound(null,player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_KNOCKBACK, SoundCategory.PLAYERS,1,1);
             stack.damage(1, player, LivingEntity.getSlotForHand(player.getActiveHand()));
-            player.getItemCooldownManager().set(this,60);
+            player.getItemCooldownManager().set(stack,60);
+            return true;
         }
+        return false;
     }
 
     public int getMaxUseTime(ItemStack stack) {
         return 1000;
     }
-
-    public static AttributeModifiersComponent createAttributeModifiers(ToolMaterial material, float baseAttackDamage, float attackSpeed) {
-        return AttributeModifiersComponent.builder()
-                .add(
-                        EntityAttributes.GENERIC_ATTACK_DAMAGE,
-                        new EntityAttributeModifier(
-                                BASE_ATTACK_DAMAGE_MODIFIER_ID, (double)((float)baseAttackDamage + material.getAttackDamage()), EntityAttributeModifier.Operation.ADD_VALUE
-                        ),
-                        AttributeModifierSlot.MAINHAND
-                )
-                .add(
-                        EntityAttributes.GENERIC_ATTACK_SPEED,
-                        new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, (double)attackSpeed, EntityAttributeModifier.Operation.ADD_VALUE),
-                        AttributeModifierSlot.MAINHAND
-                )
-                .build();
-    }
-
 
     public UseAction getUseAction(ItemStack itemStack) {
         return UseAction.BOW;
