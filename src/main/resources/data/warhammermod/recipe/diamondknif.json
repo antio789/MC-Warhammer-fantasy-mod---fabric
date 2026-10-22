@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    " ",
+    "I",
+    "S"
+
+  ],
+
+  "key":
+  {
+    "I": {
+      "item":"minecraft:diamond"
+    },
+    "S":
+    {
+      "item": "minecraft:stick"
+    }
+  },
+
+  "result":
+  {
+    "id": "warhammermod:diamond_dagger",
+    "count": 1
+  },
+  "category":"equipment"
+}

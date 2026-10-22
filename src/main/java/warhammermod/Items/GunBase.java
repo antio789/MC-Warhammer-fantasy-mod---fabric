@@ -1,42 +1,44 @@
 package warhammermod.Items;
 
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ProjectileWeaponItem;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.ItemUseAnimation;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
-import warhammermod.Items.melee.ShieldTemplate;
+import warhammermod.utils.ModEnchantmentHelper;
+import warhammermod.utils.Registry.WHRegistry;
 
 import java.util.Random;
+import java.util.function.Predicate;
 
-public class GunBase extends Item implements IReloadItem {
-    public final int timetoreload;
-    public final int Magsize;
+public abstract class GunBase extends ProjectileWeaponItem implements IReloadItem {
+    public int timetoreload;
+    public int Magsize;
+
+    public Item getAmmoType() {
+        return AmmoType;
+    }
+
     private final Item AmmoType;
     protected final Random rand = new Random();
+    public boolean hasshield = false;
     public float width = 1.5F;
     public float height = 1.5F;
 
     public GunBase(Item.Properties properties, Item ammotype, int time, int magsize) {
-        super(properties);
+        super(properties.component(WHRegistry.AMMO, Ammocomponent.DEFAULT));
         Magsize = magsize;
         timetoreload = time;
         AmmoType = ammotype;
-    }
-
-    public boolean isReadytoFire(ItemStack stack) {
-        return isCharged(stack);
     }
 
     public ItemStack findAmmo(Player player) {
@@ -83,72 +85,103 @@ public class GunBase extends Item implements IReloadItem {
         if (entityLiving instanceof Player player) {
             if (isCharged(stack) || player.isCreative()) {
                 fire(player, world, stack);
-                if (!player.isCreative()) {
-                    setCharge(stack, getCharge(stack) - 1);
+                if (!player.isCreative()) setAmmoused(stack, getCharge(stack) - 1);
+                else {
+                    stack.set(WHRegistry.AMMO, new Ammocomponent(getCharge(stack), getMagCount(stack) + 1));
+                    return true;
                 }
-            } else if (timetoreload <= getUseDuration(stack, entityLiving) - timeLeft && !world.isClientSide()) {
-                ItemStack ammo = this.findAmmo(player);
-                int ammoreserve = ammo.getCount();
+            } else if (timetoreload <= getUseDuration(stack, entityLiving) - timeLeft) {
+                int ammoreserve = this.findAmmo(player).getCount();
+                int infinitylevel = ModEnchantmentHelper.getLevel(world, stack, Enchantments.INFINITY);
                 if (ammoreserve < Magsize) {
-                    if (!player.isCreative()) {
-                        ammo.shrink(ammoreserve);
+                    if (infinitylevel == 0) {
+                        this.findAmmo(player).shrink(ammoreserve);
                     }
                     setCharge(stack, ammoreserve);
                 } else {
-                    if (!player.isCreative()) {
-                        ammo.shrink(Magsize);
+                    if (infinitylevel == 0) {
+                        this.findAmmo(player).shrink(Magsize);
                     }
                     setCharge(stack, Magsize);
                 }
+                return true;
             }
         }
-        return true;
+        return false;
+    }
+
+    public boolean isReadytoFire(ItemStack stack) {
+        return isCharged(stack);
     }
 
     public void fire(Player player, Level world, ItemStack stack) {
     }
 
-    public static boolean isCharged(ItemStack stack) {
-        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
-        return data != null && data.copyTag().getIntOr("ammo", 0) > 0;
+    public boolean isCharged(ItemStack stack) {
+        Ammocomponent ammocomponent = stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT);
+        return ammocomponent.ammocount() > 0;
     }
 
     public static int getCharge(ItemStack stack) {
-        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
-        if (data == null) {
-            return 0;
-        }
-        return data.copyTag().getIntOr("ammo", 0);
+        return stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT).ammocount();
+    }
+
+    public static int getMagCount(ItemStack stack) {
+        return stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT).startammo();
     }
 
     public static void setCharge(ItemStack stack, int ammo) {
-        CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt("ammo", ammo));
+        stack.set(WHRegistry.AMMO, new Ammocomponent(ammo, ammo));
+    }
+
+    public static void setAmmoused(ItemStack stack, int ammo) {
+        stack.set(WHRegistry.AMMO, new Ammocomponent(ammo, getMagCount(stack)));
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
+        return 72000;
+    }
+
+    public int getMaxUseTime() {
         return 72000;
     }
 
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return (isCharged(stack) && hasshieldcache) ? ItemUseAnimation.BLOCK : ItemUseAnimation.BOW;
-    }
-
-    private boolean hasshieldcache = false;
-
-    public boolean hasshield(Player player) {
-        return player.getOffhandItem().getItem() instanceof ShieldTemplate;
-    }
-
-    @Override
-    public void inventoryTick(ItemStack stack, net.minecraft.server.level.ServerLevel level, Entity entity, EquipmentSlot slot) {
-        if (entity instanceof Player player) {
-            hasshieldcache = hasshield(player);
-        }
+        return ItemUseAnimation.BOW;
     }
 
     public int getTimetoreload() {
         return timetoreload;
+    }
+
+    public int getEnchantability() {
+        return 1;
+    }
+
+    @Override
+    protected void shootProjectile(LivingEntity shooter, net.minecraft.world.entity.projectile.Projectile projectile, int index, float speed, float divergence, float yaw, LivingEntity target) {
+    }
+
+    @Override
+    public Predicate<ItemStack> getAllSupportedProjectiles() {
+        return stack -> stack.getItem().equals(AmmoType);
+    }
+
+    @Override
+    public int getDefaultProjectileRange() {
+        return 15;
+    }
+
+    public void playparticles(ParticleOptions effect, Level world, Player player) {
+        if (world.isClientSide()) {
+            for (int k = 0; k < 30; ++k) {
+                double d2 = this.rand.nextGaussian() * 0.02D;
+                double d0 = this.rand.nextGaussian() * 0.02D;
+                double d1 = this.rand.nextGaussian() * 0.02D;
+                world.addParticle(effect, player.getX() + player.getLookAngle().x * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, player.getY() + 0.4 + (double) (this.rand.nextFloat() * this.height), player.getZ() + player.getLookAngle().z * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, d2, d0, d1);
+            }
+        }
     }
 }

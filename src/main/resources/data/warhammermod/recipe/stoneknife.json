@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "I",
+    "S",
+    " "
+
+  ],
+
+  "key":
+  {
+    "I": {
+      "item":"minecraft:cobblestone"
+    },
+    "S":
+    {
+      "item": "minecraft:stick"
+    }
+  },
+
+  "result":
+  {
+    "id": "warhammermod:stone_dagger",
+    "count": 1
+  },
+  "category":"equipment"
+}

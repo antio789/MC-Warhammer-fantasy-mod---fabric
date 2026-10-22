@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    " WW",
+    " SW",
+    "S  "
+  ],
+  "key":
+  {
+    "W": {
+      "item":"minecraft:diamond"
+    },
+    "S":
+    {
+      "item": "minecraft:stick"
+    }
+  },
+
+  "result":
+  {
+    "id": "warhammermod:diamond_halberd",
+    "count": 1
+  },
+  "category":"equipment"
+}

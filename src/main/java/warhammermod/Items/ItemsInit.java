@@ -60,7 +60,7 @@ public class ItemsInit {
     //basic items
     public static final Item Cartridge = register("cartridge", Item::new);
     public static final Item Warpstone = register("warpstone", properties -> new Item(properties.rarity(Rarity.UNCOMMON)));
-    public static final Item shotShell = register("shot_shell", Item::new);
+    public static final Item shotShell = register("shotshell", Item::new);
     public static final Item Grenade = register("grenade", Item::new);
 
     //melee weapons
@@ -90,7 +90,7 @@ public class ItemsInit {
 
     //ranged weapons
     public static final Item musket = register("musket", properties -> new GunTemplate(properties.durability(420), Cartridge, 40, 1, 13));
-    public static final Item pistol = register("flintlock_pistol", properties -> new GunTemplate(properties.durability(384), Cartridge, 25, 1, 8));
+    public static final Item pistol = register("pistol", properties -> new GunTemplate(properties.durability(384), Cartridge, 25, 1, 8));
     public static final Item repeater_handgun = register("nuln_repeater_handgun", properties -> new Gun3DTemplate(properties.durability(500), Cartridge, 92, 6, 13));
     public static final Item thunderer_handgun = register("thunderer_handgun", properties -> new GunTemplate(properties.durability(540), Cartridge, 35, 1, 16));
 

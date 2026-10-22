@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+
+  "ingredients": [
+    {
+      "item":"minecraft:diamond_sword"
+    },
+    {
+      "item":"minecraft:slime_ball"
+    },
+    {
+      "item":"warhammermod:pistol"
+    }
+  ],
+
+  "result":
+  {
+    "id": "warhammermod:diamond_gunsword",
+    "count": 1
+  },
+  "category":"equipment"
+}

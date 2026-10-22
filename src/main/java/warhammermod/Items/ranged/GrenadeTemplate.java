@@ -1,19 +1,17 @@
 package warhammermod.Items.ranged;
 
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import warhammermod.Entities.Projectile.GrenadeEntity;
+import warhammermod.Enchantements.ModEnchantements;
 import warhammermod.Items.GunBase;
-import warhammermod.utils.reference;
+import warhammermod.utils.ModEnchantmentHelper;
 
 public class GrenadeTemplate extends GunBase {
 
@@ -23,23 +21,17 @@ public class GrenadeTemplate extends GunBase {
 
     @Override
     public void fire(Player player, Level world, ItemStack stack) {
-        if (world.isClientSide()) {
-            for (int k = 0; k < 40; ++k) {
-                double d2 = this.rand.nextGaussian() * 0.02D;
-                double d0 = this.rand.nextGaussian() * 0.02D;
-                double d1 = this.rand.nextGaussian() * 0.02D;
-                world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, player.getX() + player.getLookAngle().x * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, player.getY() + 0.4 + (double) (this.rand.nextFloat() * this.height), player.getZ() + player.getLookAngle().z * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, d2, d0, d1);
-            }
-        }
-        if (world instanceof ServerLevel serverLevel) {
+        playparticles(ParticleTypes.CAMPFIRE_COSY_SMOKE, world, player);
+        if (!world.isClientSide()) {
             world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1.0F, 1.35F / (rand.nextFloat() * 0.4F + 1.2F) + 0.5F);
 
-            GrenadeEntity bullet = new GrenadeEntity(player, world);
+            GrenadeEntity bullet = new GrenadeEntity(player, world, stack, findAmmo(player));
+            bullet.setPos(player.getX(), player.getEyeY() - 0.26, player.getZ());
 
-            int i = EnchantmentHelper.getItemEnchantmentLevel(reference.enchantment(serverLevel, Enchantments.POWER), stack);
-            bullet.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 0.8F + 0.13F * i, 0.6F);
+            int i = ModEnchantmentHelper.getLevel(world, stack, ModEnchantements.RANGE);
+            bullet.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 0.7F + 0.13F * i, 0.6F);
 
-            int k = EnchantmentHelper.getItemEnchantmentLevel(reference.enchantment(serverLevel, Enchantments.PUNCH), stack) + 1;
+            int k = ModEnchantmentHelper.getLevel(world, stack, ModEnchantements.RADIUS);
             if (k > 0) {
                 bullet.setknockbacklevel(k);
             }

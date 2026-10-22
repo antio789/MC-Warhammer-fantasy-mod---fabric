@@ -1,6 +1,6 @@
 package warhammermod.Items.ranged;
 
-import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -12,23 +12,22 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.ToolMaterial;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import warhammermod.Entities.Projectile.Bullet;
-import warhammermod.Items.GunBase;
+import warhammermod.Items.Ammocomponent;
 import warhammermod.Items.IReloadItem;
-import warhammermod.Items.ItemsInit;
 import warhammermod.Items.melee.HammerTemplate;
-import warhammermod.Items.melee.ShieldTemplate;
-import warhammermod.utils.reference;
+import warhammermod.utils.ModEnchantmentHelper;
+import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.utils.Registry.WHRegistry;
 
 import java.util.Random;
 
 public class GunSwordTemplate extends Item implements IReloadItem {
     float damage;
-    public final int timetoreload;
-    public final int Magsize;
+    public int timetoreload;
+    public int Magsize;
     protected final Random rand = new Random();
     public float width = 1.5F;
     public float height = 1.5F;
@@ -38,11 +37,6 @@ public class GunSwordTemplate extends Item implements IReloadItem {
         damage = damagein;
         timetoreload = time;
         Magsize = magsize;
-    }
-
-    @Override
-    public boolean isReadytoFire(ItemStack stack) {
-        return isCharged(stack);
     }
 
     public ItemStack findAmmo(Player player) {
@@ -77,8 +71,10 @@ public class GunSwordTemplate extends Item implements IReloadItem {
 
     @Override
     public void onUseTick(Level world, LivingEntity player, ItemStack stack, int count) {
-        if ((count == getUseDuration(stack, player) - timetoreload) && !isCharged(stack) && !((Player) player).isCreative() && !world.isClientSide()) {
-            world.playSound(null, player.blockPosition(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1, 1);
+        if (player instanceof Player) {
+            if ((count == getUseDuration(stack, player) - timetoreload) && !isCharged(stack) && !((Player) player).isCreative() && !world.isClientSide()) {
+                world.playSound(null, player.blockPosition(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1, 1);
+            }
         }
     }
 
@@ -87,78 +83,95 @@ public class GunSwordTemplate extends Item implements IReloadItem {
         if (entityLiving instanceof Player player) {
             if (isCharged(stack) || player.isCreative()) {
                 fire(player, world, stack);
-                if (!player.isCreative()) {
-                    setCharge(stack, getCharge(stack) - 1);
-                }
+                if (!player.isCreative()) setCharge(stack, getCharge(stack) - 1);
             } else if (timetoreload <= getUseDuration(stack, entityLiving) - timeLeft && !world.isClientSide()) {
-                ItemStack ammo = findAmmo(player);
-                int ammoreserve = ammo.getCount();
+                int ammoreserve = this.findAmmo(player).getCount();
+                int infinitylevel = ModEnchantmentHelper.getLevel(world, stack, Enchantments.INFINITY);
                 if (ammoreserve < Magsize) {
-                    ammo.shrink(ammoreserve);
+                    if (infinitylevel == 0) {
+                        this.findAmmo(player).shrink(ammoreserve);
+                    }
                     setCharge(stack, ammoreserve);
+                    return true;
                 } else {
-                    ammo.shrink(Magsize);
+                    if (infinitylevel == 0) {
+                        this.findAmmo(player).shrink(Magsize);
+                    }
                     setCharge(stack, Magsize);
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
+    }
+
+    public boolean isReadytoFire(ItemStack stack) {
+        return isCharged(stack);
     }
 
     public void fire(Player player, Level world, ItemStack stack) {
-        if (world instanceof ServerLevel serverLevel) {
-            world.playSound(null, player.blockPosition(), SoundEvents.GENERIC_EXPLODE.value(), SoundSource.PLAYERS, 1, 1.35F / (rand.nextFloat() * 0.4F + 1.2F) + 0.5F);
-
-            Bullet bullet = new Bullet(player, world, damage);
+        if (world.isClientSide()) {
+            for (int k = 0; k < 30; ++k) {
+                double d2 = this.rand.nextGaussian() * 0.02D;
+                double d0 = this.rand.nextGaussian() * 0.02D;
+                double d1 = this.rand.nextGaussian() * 0.02D;
+                world.addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, player.getX() + player.getLookAngle().x * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, player.getY() + 0.4 + (double) (this.rand.nextFloat() * this.height), player.getZ() + player.getLookAngle().z * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, d2, d0, d1);
+            }
+        }
+        if (!world.isClientSide()) {
+            world.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.GENERIC_EXPLODE.value(), player.getSoundSource(), 1.0f, 1.35F / (rand.nextFloat() * 0.4F + 1.2F) + 0.5F);
+            Bullet bullet = new Bullet(player, world, damage, stack, findAmmo(player));
             bullet.setPos(player.getX(), player.getEyeY() - 0.26, player.getZ());
             bullet.shootFromRotation(player, player.getXRot(), player.getYRot(), 0, 3.5F, 0.3F);
 
-            int i = EnchantmentHelper.getItemEnchantmentLevel(reference.enchantment(serverLevel, Enchantments.POWER), stack);
+            int i = ModEnchantmentHelper.getLevel(world, stack, Enchantments.POWER);
             if (i > 0) {
                 bullet.setpowerDamage(i);
             }
-            int k = EnchantmentHelper.getItemEnchantmentLevel(reference.enchantment(serverLevel, Enchantments.PUNCH), stack) + 1;
+            int k = ModEnchantmentHelper.getLevel(world, stack, Enchantments.PUNCH) + 1;
             if (k > 0) {
                 bullet.setknockbacklevel(k);
             }
-
             world.addFreshEntity(bullet);
+            if (ModEnchantmentHelper.getLevel(world, stack, Enchantments.FLAME) > 0) {
+                bullet.igniteForSeconds(100);
+            }
             stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);
         }
     }
 
-    public static boolean isCharged(ItemStack stack) {
-        return GunBase.isCharged(stack);
+    public boolean isCharged(ItemStack stack) {
+        Ammocomponent ammocomponent = stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT);
+        return ammocomponent.ammocount() > 0;
     }
 
     public static int getCharge(ItemStack stack) {
-        return GunBase.getCharge(stack);
+        return stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT).ammocount();
     }
 
     public static void setCharge(ItemStack stack, int ammo) {
-        GunBase.setCharge(stack, ammo);
+        stack.set(WHRegistry.AMMO, new Ammocomponent(ammo, ammo));
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
+        return 72000;
+    }
+
+    public int getMaxUseTime() {
         return 72000;
     }
 
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return (isCharged(stack) && hasshieldcache) ? ItemUseAnimation.BLOCK : ItemUseAnimation.BOW;
+        return ItemUseAnimation.BOW;
     }
 
-    private boolean hasshieldcache = false;
-
-    public boolean hasshield(Player player) {
-        return player.getOffhandItem().getItem() instanceof ShieldTemplate;
+    public int getTimetoreload() {
+        return timetoreload;
     }
 
-    @Override
-    public void inventoryTick(ItemStack stack, net.minecraft.server.level.ServerLevel level, net.minecraft.world.entity.Entity entity, EquipmentSlot slot) {
-        if (entity instanceof Player player) {
-            hasshieldcache = hasshield(player);
-        }
+    public int getEnchantability() {
+        return 1;
     }
 }

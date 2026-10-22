@@ -5,24 +5,50 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import warhammermod.utils.Registry.Entityinit;
+import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.utils.Registry.WHRegistry;
 
 public class WarpBulletEntity extends ProjectileBase {
-    public WarpBulletEntity(EntityType<? extends WarpBulletEntity> type, Level world) {
-        super(type, world);
+
+    public WarpBulletEntity(Level world) {
+        super(Entityinit.WarpBullet, world);
     }
 
-    public WarpBulletEntity(LivingEntity shooter, Level world, float damageIn) {
-        super(Entityinit.WarpBullet, shooter, world, damageIn);
+    public WarpBulletEntity(EntityType<? extends WarpBulletEntity> type, Level level) {
+        super(type, level);
     }
+
+    public WarpBulletEntity(Level worldin, LivingEntity shooter, float damageIn, EntityType<? extends ProjectileBase> type, ItemStack stack, ItemStack ammo) {
+        super(type, worldin, shooter, ammo, damageIn, stack);
+    }
+
+    public WarpBulletEntity(LivingEntity shooter, Level world, float damageIn, ItemStack stack) {
+        this(world, shooter, damageIn, Entityinit.WarpBullet, stack, new ItemStack(ItemsInit.Warpstone));
+    }
+
+    public WarpBulletEntity(LivingEntity shooter, Level world, float damageIn, ItemStack stack, ItemStack ammo) {
+        this(world, shooter, damageIn, Entityinit.WarpBullet, stack, ammo);
+    }
+
+    int delayedtick = 0;
 
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide() && !this.isInGround()) {
+
+        if (delayedtick <= 0 && this.level().isClientSide() && !this.isInGround()) {
+            delayedtick = 3;
             spawnColoredParticles();
         }
+        delayedtick--;
+    }
+
+    @Override
+    protected ItemStack getDefaultPickupItem() {
+        return new ItemStack(ItemsInit.Warpstone);
     }
 
     @Override
@@ -33,11 +59,12 @@ public class WarpBulletEntity extends ProjectileBase {
     }
 
     private void spawnColoredParticles() {
-        double d0 = 1.0D;
+        double d0 = 0.0D;
         double d1 = 1.0D;
         double d2 = 0.0D;
+
         for (int j = 0; j < 5; ++j) {
-            this.level().addParticle(net.minecraft.core.particles.ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, 65280), this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getBbWidth(), this.getY() + this.random.nextDouble() * (double) this.getBbHeight(), this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getBbWidth(), d0, d1, d2);
+            this.level().addParticle(WHRegistry.WARP, this.getX() + (this.random.nextDouble() - 0.5D) * (double) this.getBbWidth(), this.getY() + this.random.nextDouble() * (double) this.getBbHeight(), this.getZ() + (this.random.nextDouble() - 0.5D) * (double) this.getBbWidth(), d0, d1, d2);
         }
     }
 }
