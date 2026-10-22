@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:gunpowder",
+    "minecraft:iron_ingot"
+  ],
+  "result": {
+    "id": "warhammermod:grenade",
+    "count": 2
+  }
+}

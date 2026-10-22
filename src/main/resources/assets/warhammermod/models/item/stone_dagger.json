@@ -1,6 +1,6 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "warhammermod:items/stone_dagger"
+    "layer0": "warhammermod:item/stone_dagger"
   }
 }
