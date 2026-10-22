@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "warhammermod:item/diamond_chainmail_helmet"
+  }
+}

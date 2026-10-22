@@ -53,5 +53,11 @@
   "item.ghal_maraz.break": "Ghal Maraz vous abandonne maintenant mais reviendra en temps de besoin",
   "tooltip.ghal_maraz": "Le légendaire Ghal Maraz, utilisez-le avec sagesse",
   "enchantment.warhammermod.range": "Portée",
-  "enchantment.warhammermod.radius": "Rayon d'explosion"
+  "enchantment.warhammermod.radius": "Rayon d'explosion",
+  "item.warhammermod.skaven_egg": "Skaven Spawn Egg",
+  "item.warhammermod.pegasus_egg": "Pegasus Spawn Egg",
+  "item.warhammermod.dwarf_egg": "Dwarf Spawn Egg",
+  "entity.warhammermod.skaven": "Skaven",
+  "entity.warhammermod.pegasus": "Pegasus",
+  "entity.warhammermod.dwarf": "Dwarf"
 }

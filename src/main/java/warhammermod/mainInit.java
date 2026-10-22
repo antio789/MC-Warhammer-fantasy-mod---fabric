@@ -4,6 +4,7 @@ import net.fabricmc.api.ModInitializer;
 import warhammermod.Items.ItemsInit;
 import warhammermod.utils.Registry.Entityinit;
 import warhammermod.utils.Registry.WHRegistry;
+import warhammermod.world.Spawn;
 
 public class mainInit implements ModInitializer {
     @Override
@@ -11,5 +12,6 @@ public class mainInit implements ModInitializer {
         ItemsInit.registeritems();
         Entityinit.initializeEntities();
         WHRegistry.registersounds();
+        Spawn.addEntitySpawn();
     }
 }

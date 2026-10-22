@@ -53,5 +53,11 @@
   "item.ghal_maraz.break": "Ghal Maraz te deja ahora, pero volverá en tiempo de necesidad",
   "tooltip.ghal_maraz": "El Martillo de Guerra Legendario, úsalo sabiamente",
   "enchantment.warhammermod.range": "Rango",
-  "enchantment.warhammermod.radius": "Radio de Explosión"
+  "enchantment.warhammermod.radius": "Radio de Explosión",
+  "item.warhammermod.skaven_egg": "Skaven Spawn Egg",
+  "item.warhammermod.pegasus_egg": "Pegasus Spawn Egg",
+  "item.warhammermod.dwarf_egg": "Dwarf Spawn Egg",
+  "entity.warhammermod.skaven": "Skaven",
+  "entity.warhammermod.pegasus": "Pegasus",
+  "entity.warhammermod.dwarf": "Dwarf"
 }

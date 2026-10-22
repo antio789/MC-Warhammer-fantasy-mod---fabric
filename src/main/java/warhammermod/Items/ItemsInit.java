@@ -16,6 +16,10 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.equipment.ArmorMaterial;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAssets;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
 import warhammermod.Items.melee.DaggerTemplate;
@@ -105,6 +109,22 @@ public class ItemsInit {
     public static final Item iron_gunsword = register("iron_gunsword", properties -> new GunSwordTemplate(ToolMaterial.IRON, properties, 5.5F, -2.4F, 25, 1, 8));
     public static final Item diamond_gunsword = register("diamond_gunsword", properties -> new GunSwordTemplate(ToolMaterial.DIAMOND, properties, 6.5F, -2.4F, 25, 1, 8));
 
+    //armor
+    public static final ArmorMaterial DIAMOND_CHAIN = new ArmorMaterial(
+            33,
+            java.util.Map.of(ArmorType.HELMET, 3, ArmorType.CHESTPLATE, 6, ArmorType.LEGGINGS, 7, ArmorType.BOOTS, 2),
+            10,
+            net.minecraft.sounds.SoundEvents.ARMOR_EQUIP_CHAIN,
+            1.0F,
+            0.0F,
+            net.minecraft.tags.ItemTags.DIAMOND_TOOL_MATERIALS,
+            EquipmentAssets.CHAINMAIL);
+
+    public static final Item DIAMOND_CHAINMAIL_HELMET = register("diamond_chainmail_helmet", properties -> new Item(properties.humanoidArmor(DIAMOND_CHAIN, ArmorType.HELMET)));
+    public static final Item DIAMOND_CHAINMAIL_CHESTPLATE = register("diamond_chainmail_chestplate", properties -> new Item(properties.humanoidArmor(DIAMOND_CHAIN, ArmorType.CHESTPLATE)));
+    public static final Item DIAMOND_CHAINMAIL_LEGGINGS = register("diamond_chainmail_leggings", properties -> new Item(properties.humanoidArmor(DIAMOND_CHAIN, ArmorType.LEGGINGS)));
+    public static final Item DIAMOND_CHAINMAIL_BOOTS = register("diamond_chainmail_boots", properties -> new Item(properties.humanoidArmor(DIAMOND_CHAIN, ArmorType.BOOTS)));
+
     //shields
     public static final Item High_Elf_Shield = register("high_elf_shield", ShieldTemplate::new);
     public static final Item Dark_Elf_Shield = register("dark_elf_shield", ShieldTemplate::new);
@@ -149,6 +169,11 @@ public class ItemsInit {
             output.accept(new ItemStack(GreatPick));
             output.accept(new ItemStack(GHAL_MARAZ));
 
+            output.accept(new ItemStack(DIAMOND_CHAINMAIL_HELMET));
+            output.accept(new ItemStack(DIAMOND_CHAINMAIL_CHESTPLATE));
+            output.accept(new ItemStack(DIAMOND_CHAINMAIL_LEGGINGS));
+            output.accept(new ItemStack(DIAMOND_CHAINMAIL_BOOTS));
+
             output.accept(new ItemStack(musket));
             output.accept(new ItemStack(pistol));
             output.accept(new ItemStack(repeater_handgun));
@@ -169,6 +194,10 @@ public class ItemsInit {
             output.accept(new ItemStack(Dwarf_shield));
             output.accept(new ItemStack(Imperial_shield));
             output.accept(new ItemStack(Skaven_shield));
+
+            output.accept(new ItemStack(warhammermod.utils.Registry.Entityinit.SKAVEN_SPAWN_EGG));
+            output.accept(new ItemStack(warhammermod.utils.Registry.Entityinit.Pegasus_SPAWN_EGG));
+            output.accept(new ItemStack(warhammermod.utils.Registry.Entityinit.DWARF_SPAWN_EGG));
         });
     }
 
