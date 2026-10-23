@@ -10,20 +10,11 @@
 
   "key":
   {
-    "G": {
-      "item":"minecraft:gold_ingot"
-    },
+    "G": "minecraft:gold_ingot",
     "S":
-    {
-      "item": "minecraft:shield"
-    },
-    "W":{
-      "item":"minecraft:white_dye"
-    },
-    "B":{
-      "item":"minecraft:light_blue_dye",
-      "data":12
-    }
+    "minecraft:shield",
+    "W":"minecraft:white_dye",
+    "B": "minecraft:light_blue_dye"
   },
 
   "result":

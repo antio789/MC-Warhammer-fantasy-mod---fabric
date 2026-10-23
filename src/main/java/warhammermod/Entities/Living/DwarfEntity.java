@@ -46,7 +46,7 @@ import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
-import net.minecraft.world.entity.item.ExperienceOrb;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.npc.InventoryCarrier;
 import net.minecraft.world.entity.npc.villager.AbstractVillager;
@@ -70,6 +70,7 @@ import warhammermod.Entities.Living.AImanager.DwarfCombattasks;
 import warhammermod.Entities.Living.AImanager.DwarfVillagerTasks;
 import warhammermod.Entities.Living.AImanager.Data.DwarfProfessionRecord;
 import warhammermod.Entities.Living.AImanager.Data.DwarfTasks.Sensor.LordLastSeenSensor;
+import warhammermod.Entities.Living.AImanager.Data.TradeFactory;
 import warhammermod.Entities.Living.AImanager.Data.DwarfTrades;
 import warhammermod.utils.Registry.Entityinit;
 import warhammermod.utils.Registry.WHRegistry;
@@ -157,39 +158,58 @@ public class DwarfEntity extends AbstractVillager {
         return Brain.provider(MEMORY_MODULES, SENSOR_TYPES, DwarfEntity::createDwarfActivities);
     }
 
-    private static List<net.minecraft.world.entity.ai.ActivityData<DwarfEntity>> createDwarfActivities(DwarfEntity dwarf) {
-        return List.of();
+    private static java.util.List<net.minecraft.world.entity.ai.ActivityData<DwarfEntity>> createDwarfActivities(DwarfEntity dwarf) {
+        DwarfProfessionRecord profession = dwarf.getProfession();
+        List<net.minecraft.world.entity.ai.ActivityData<DwarfEntity>> activities = new java.util.ArrayList<>();
+        if (dwarf.isBaby()) {
+            entityActivity(activities, net.minecraft.world.entity.schedule.Activity.PLAY, DwarfVillagerTasks.createPlayTasks(0.5F));
+            entityActivity(activities, net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F));
+        } else {
+            entityActivity(activities, net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F));
+            entityActivity(activities, net.minecraft.world.entity.schedule.Activity.WORK, DwarfVillagerTasks.createWorkTasks(profession, 0.5F),
+                    ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT)));
+        }
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.CORE, DwarfVillagerTasks.createCoreTasks(profession, 0.5F));
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.MEET, DwarfVillagerTasks.createMeetTasks(0.5f),
+                ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT)));
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.REST, DwarfVillagerTasks.createRestTasks(0.5f));
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.IDLE, DwarfVillagerTasks.createIdleTasks(0.5f));
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.PRE_RAID, DwarfVillagerTasks.createPreRaidTasks(0.5f));
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.RAID, DwarfVillagerTasks.createRaidTasks(0.5f));
+        entityActivity(activities, net.minecraft.world.entity.schedule.Activity.HIDE, DwarfVillagerTasks.createHideTasks(0.5f));
+        return activities;
+    }
+
+    private static void entityActivity(java.util.List<net.minecraft.world.entity.ai.ActivityData<DwarfEntity>> activities,
+                                       net.minecraft.world.entity.schedule.Activity activity,
+                                       ImmutableList<Pair<Integer, ? extends BehaviorControl<? super DwarfEntity>>> behaviors) {
+        activities.add(net.minecraft.world.entity.ai.ActivityData.create(activity, behaviors));
+    }
+
+    private static void entityActivity(java.util.List<net.minecraft.world.entity.ai.ActivityData<DwarfEntity>> activities,
+                                       net.minecraft.world.entity.schedule.Activity activity,
+                                       ImmutableList<Pair<Integer, ? extends BehaviorControl<? super DwarfEntity>>> behaviors,
+                                       java.util.Set<Pair<MemoryModuleType<?>, MemoryStatus>> conditions) {
+        activities.add(net.minecraft.world.entity.ai.ActivityData.create(activity, behaviors, conditions));
     }
 
     private void registerBrainGoals(Brain<DwarfEntity> entityBrain) {
-        DwarfProfessionRecord dwarfProfession = this.getProfession();
-        var noCond = com.google.common.collect.ImmutableSet.<Pair<MemoryModuleType<?>, MemoryStatus>>of();
-        var noErase = com.google.common.collect.ImmutableSet.<MemoryModuleType<?>>of();
         if (this.isBaby()) {
             entityBrain.setSchedule(net.minecraft.world.attribute.EnvironmentAttributes.BABY_VILLAGER_ACTIVITY);
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PLAY, DwarfVillagerTasks.createPlayTasks(0.5F), noCond, noErase);
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F), noCond, noErase);
         } else {
             entityBrain.setSchedule(net.minecraft.world.attribute.EnvironmentAttributes.VILLAGER_ACTIVITY);
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F), noCond, noErase);
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.WORK, DwarfVillagerTasks.createWorkTasks(dwarfProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT)), noErase);
         }
-
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.CORE, DwarfVillagerTasks.createCoreTasks(dwarfProfession, 0.5F), noCond, noErase);
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.MEET, DwarfVillagerTasks.createMeetTasks(0.5f), ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT)), noErase);
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.REST, DwarfVillagerTasks.createRestTasks(0.5f), noCond, noErase);
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.IDLE, DwarfVillagerTasks.createIdleTasks(0.5f), noCond, noErase);
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PRE_RAID, DwarfVillagerTasks.createPreRaidTasks(0.5f), noCond, noErase);
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.RAID, DwarfVillagerTasks.createRaidTasks(0.5f), noCond, noErase);
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.HIDE, DwarfVillagerTasks.createHideTasks(0.5f), noCond, noErase);
         entityBrain.setCoreActivities(ImmutableSet.of(net.minecraft.world.entity.schedule.Activity.CORE));
         entityBrain.setDefaultActivity(net.minecraft.world.entity.schedule.Activity.IDLE);
         entityBrain.updateActivityFromSchedule(this.level().environmentAttributes(), this.level().getGameTime(), this.position());
     }
 
     @Override
-    protected Brain.Provider<? extends AbstractVillager> brainProvider() {
-        return createDwarfBrainProvider();
+    protected Brain<DwarfEntity> makeBrain(Brain.Packed packed) {
+        Brain<DwarfEntity> brain = createDwarfBrainProvider().makeBrain(this, packed);
+        this.brain = brain;
+        registerBrainGoals(brain);
+        return brain;
     }
 
     public void refreshBrain(ServerLevel world) {
@@ -377,7 +397,8 @@ public class DwarfEntity extends AbstractVillager {
     }
 
     @Nullable
-    public DwarfEntity createChild(ServerLevel world, AgeableMob entity) {
+    @Override
+    public DwarfEntity getBreedOffspring(ServerLevel world, AgeableMob entity) {
         DwarfEntity dwarfEntity = new DwarfEntity(world);
         dwarfEntity.finalizeSpawn(world, world.getCurrentDifficultyAt(dwarfEntity.blockPosition()), EntitySpawnReason.BREEDING, null);
         return dwarfEntity;
@@ -391,7 +412,7 @@ public class DwarfEntity extends AbstractVillager {
         if (this.canSummonGolem(time)) {
             AABB axisalignedbb = this.getBoundingBox().inflate(10.0D, 10.0D, 10.0D);
             List<DwarfEntity> list = serverWorld.getEntitiesOfClass(DwarfEntity.class, axisalignedbb);
-            List<DwarfEntity> list1 = list.stream().filter(DwarfEntity::canSummonGolem).limit(5L).collect(Collectors.toList());
+            List<DwarfEntity> list1 = list.stream().filter(dwarfEntity -> dwarfEntity.canSummonGolem(time)).limit(5L).collect(Collectors.toList());
             if (list1.size() >= requiredCount) {
                 if (this.tryspawnlord(serverWorld)) {
                     list.forEach(LordLastSeenSensor::senseLord);
@@ -453,7 +474,7 @@ public class DwarfEntity extends AbstractVillager {
     private void beginTradeWith(Player customer) {
         this.prepareOffersFor(customer);
         this.setTradingPlayer(customer);
-        this.openTradeScreen(customer, this.getDisplayName(), this.getProfessionLevel());
+        this.openTradingScreen(customer, this.getDisplayName(), this.getProfessionLevel());
     }
 
     @Override
@@ -467,8 +488,8 @@ public class DwarfEntity extends AbstractVillager {
      */
 
     @Override
-    protected void onAgeReached() {
-        super.onAgeReached();
+    protected void ageBoundaryReached() {
+        super.ageBoundaryReached();
         if (this.level() instanceof ServerLevel) {
             this.refreshBrain((ServerLevel) this.level());
         }
@@ -561,7 +582,8 @@ public class DwarfEntity extends AbstractVillager {
         return false;
     }
 
-    private boolean canRestock() {
+    @Override
+    public boolean canRestock() {
         return this.restocksToday == 0 || this.restocksToday < 2 && this.level().getGameTime() > this.lastRestockTime + 2400L;
     }
 
@@ -569,7 +591,7 @@ public class DwarfEntity extends AbstractVillager {
         long l = this.lastRestockTime + 12000L;
         long m = this.level().getGameTime();
         boolean bl = m > l;
-        long n = this.level().getDayTime();
+        long n = this.level().getOverworldClockTime();
         if (this.lastRestockCheckTime > 0L) {
             long p = n / 24000L;
             long o = this.lastRestockCheckTime / 24000L;
@@ -661,7 +683,7 @@ public class DwarfEntity extends AbstractVillager {
             this.levelingUp = true;
             i += 5;
         }
-        if (offer.shouldRewardXp()) {
+        if (offer.shouldRewardExp()) {
             this.level().addFreshEntity(new ExperienceOrb(this.level(), this.getX(), this.getY() + 0.5, this.getZ(), i));
         }
     }
@@ -699,7 +721,6 @@ public class DwarfEntity extends AbstractVillager {
         });
     }
 
-    @Override
     public boolean isReadyToBreed() {
         return this.foodLevel + this.getAvailableFood() >= 12 && !this.isSleeping() && this.getAge() == 0;
     }
@@ -727,7 +748,7 @@ public class DwarfEntity extends AbstractVillager {
     }
 
     public int getReputation(Player player) {
-        return this.gossip.getReputationFor(player.getUUID(), gossipType -> true);
+        return this.gossip.getReputation(player.getUUID(), gossipType -> true);
     }
 
     private void depleteFood(int amount) {
@@ -750,7 +771,9 @@ public class DwarfEntity extends AbstractVillager {
 
     private void levelUp() {
         this.setVillagerlevel(this.getProfessionLevel() + 1);
-        this.updateTrades();
+        if (this.level() instanceof ServerLevel serverLevel) {
+            this.updateTrades(serverLevel);
+        }
     }
 
     public static int getUpperLevelExperience(int level) {
@@ -765,7 +788,7 @@ public class DwarfEntity extends AbstractVillager {
 
     @Override
     protected net.minecraft.network.chat.Component getTypeName() {
-        return net.minecraft.network.chat.Component.translatable(this.getType().toShortString() + "." + WHRegistry.DWARF_PROFESSIONS.getKey(this.getProfession()).map(k -> k.location().getPath()).orElse("warrior"));
+        return net.minecraft.network.chat.Component.translatable(this.getType().toShortString() + "." + WHRegistry.DWARF_PROFESSIONS.getResourceKey(this.getProfession()).map(k -> k.identifier().getPath()).orElse("warrior"));
     }
 
     @Override
@@ -816,22 +839,28 @@ public class DwarfEntity extends AbstractVillager {
     }
 
     @Override
-    protected void updateTrades() {
-        Int2ObjectMap<net.minecraft.world.item.trading.ItemListing[]> int2ObjectMap2 = DwarfTrades.TRADES.get(this.getProfession());
+    protected void updateTrades(ServerLevel serverLevel) {
+        Int2ObjectMap<TradeFactory[]> int2ObjectMap2 = DwarfTrades.TRADES.get(this.getProfession());
         if (int2ObjectMap2 == null || int2ObjectMap2.isEmpty()) {
             return;
         }
-        net.minecraft.world.item.trading.ItemListing[] factorys = int2ObjectMap2.get(this.getProfessionLevel());
+        TradeFactory[] factorys = int2ObjectMap2.get(this.getProfessionLevel());
         if (factorys == null) {
             return;
         }
         MerchantOffers merchantOffers = this.getOffers();
-        this.addOffersFromItemListings(merchantOffers, factorys, 2);
+        for (int i = 0; i < 2 && merchantOffers.size() < factorys.length * 2; ++i) {
+            TradeFactory factory = factorys[this.random.nextInt(factorys.length)];
+            MerchantOffer offer = factory.create(this.random);
+            if (!merchantOffers.contains(offer)) {
+                merchantOffers.add(offer);
+            }
+        }
     }
 
     public void talkWithVillager(ServerLevel world, DwarfEntity dwarf, long time) {
         if ((time < this.gossipStartTime || time >= this.gossipStartTime + 1200L) && (time < dwarf.gossipStartTime || time >= dwarf.gossipStartTime + 1200L)) {
-            this.gossip.shareGossipFrom(dwarf.gossip, this.random, 10);
+            this.gossip.transferFrom(dwarf.gossip, this.random, 10);
             this.gossipStartTime = time;
             dwarf.gossipStartTime = time;
             this.summonGolem(world, time, 5);
@@ -866,17 +895,15 @@ public class DwarfEntity extends AbstractVillager {
         return this.gossip;
     }
 
-    @Override
     public void sleepUnder(BlockPos pos) {
-        super.sleepUnder(pos);
+        this.startSleeping(pos);
         this.brain.setMemory(MemoryModuleType.LAST_SLEPT, this.level().getGameTime());
         this.brain.eraseMemory(MemoryModuleType.WALK_TARGET);
         this.brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
     }
 
-    @Override
     public void wakeUp() {
-        super.wakeUp();
+        this.stopSleeping();
         this.brain.setMemory(MemoryModuleType.LAST_WOKEN, this.level().getGameTime());
     }
 

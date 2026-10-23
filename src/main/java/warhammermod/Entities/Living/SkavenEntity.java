@@ -153,9 +153,9 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
     protected void registerGoals() {
         super.registerGoals();
         this.goalSelector.addGoal(0, new FloatGoal(this));
-        this.goalSelector.add(8, new RandomStrollGoal(this, 0.6));
-        this.goalSelector.add(9, new LookAtPlayerGoal(this, Player.class, 15.0f, 1.0f));
-        this.goalSelector.add(10, new LookAtPlayerGoal(this, Mob.class, 15.0f));
+        this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6));
+        this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 15.0f, 1.0f));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 15.0f));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this, SkavenEntity.class).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
         this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false));
@@ -184,11 +184,11 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
         return Skaven_ranged_dropchance;
     }
 
-    public static ItemStack[][][] getSkavenEquipment() {
+    public ItemStack[][][] getSkavenEquipment() {
         return new ItemStack[][][]{
                 {{}, {new ItemStack(ItemsInit.Sling)}},
-                {{functions.getRandomsword(4, random), new ItemStack(ItemsInit.Skaven_shield)}, {new ItemStack(ItemsInit.Warplock_jezzail)}},
-                {{new ItemStack(ItemsInit.stone_halberd)}, {functions.getRandomsword(5, random), new ItemStack(ItemsInit.Skaven_shield)}},
+                {{functions.getRandomsword(4, this.random), new ItemStack(ItemsInit.Skaven_shield)}, {new ItemStack(ItemsInit.Warplock_jezzail)}},
+                {{new ItemStack(ItemsInit.stone_halberd)}, {functions.getRandomsword(5, this.random), new ItemStack(ItemsInit.Skaven_shield)}},
                 {{new ItemStack(ItemsInit.iron_dagger), new ItemStack(ItemsInit.iron_dagger)}},
                 {{}},
                 {{new ItemStack(ItemsInit.RatlingGun)}},
@@ -256,7 +256,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
         } else setSkavenType(getrandomtype());
 
         this.populateDefaultEquipmentSlots(random, difficultyIn);
-        this.populateDefaultEquipmentEnchantments(random, difficultyIn);
+        this.populateDefaultEquipmentEnchantments(world, random, difficultyIn);
         this.reassessWeaponGoal();
         this.handleAttributes();
         return super.finalizeSpawn(world, difficultyIn, reason, spawnDataIn);
@@ -345,7 +345,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
     }
 
     private void attackEntitywithrifle(LivingEntity target, int damage, float inaccuracy, ItemStack stack) {
-        WarpBulletEntity bullet = new WarpBulletEntity(this, this.level(), damage);
+        WarpBulletEntity bullet = new WarpBulletEntity(this, this.level(), (float) damage, ItemStack.EMPTY);
         int j = ModEnchantmentHelper.getLevel(level(), stack, Enchantments.POWER);
         if (j > 0) {
             bullet.setpowerDamage(j);
@@ -367,7 +367,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
     }
 
     private void attackEntitywithstone(LivingEntity target, float inaccuracy, ItemStack stack) {
-        StoneEntity stone = new StoneEntity(this, this.level(), 3);
+        StoneEntity stone = new StoneEntity(this, this.level(), 3, ItemStack.EMPTY);
         stone.setPos(this.getX(), this.getEyeY() - 0.1f, this.getZ());
         int j = ModEnchantmentHelper.getLevel(level(), stack, Enchantments.POWER);
         if (j > 0) {
@@ -400,7 +400,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
                 livingentity = (LivingEntity) source.getEntity();
             }
 
-            if (livingentity != null && this.level().getDifficulty() == Difficulty.HARD && (double) this.random.nextFloat() < reinforcementchance.get(getSkavenTypePosition()) / 2 && world.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_MOBGRIEFING)) {
+            if (livingentity != null && this.level().getDifficulty() == Difficulty.HARD && (double) this.random.nextFloat() < reinforcementchance.get(getSkavenTypePosition()) / 2 && world.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.SPAWN_MONSTERS)) {
                 SkavenEntity skavenEntity = Entityinit.SKAVEN.create(world, EntitySpawnReason.REINFORCEMENT);
                 int i = Mth.floor(this.getX());
                 int j = Mth.floor(this.getY());
@@ -418,7 +418,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
                     if (this.level().hasChunkAt(blockpos) && this.level().noCollision(skavenEntity))
                         continue;
                     skavenEntity.setTarget(livingentity);
-                    skavenEntity.finalizeSpawn(world, this.level().getCurrentDifficultyAt(skavenEntity.blockPosition()), EntitySpawnReason.REINFORCEMENT, null);
+                    skavenEntity.finalizeSpawn(world, world.getCurrentDifficultyAt(skavenEntity.blockPosition()), EntitySpawnReason.REINFORCEMENT, null);
                     world.addFreshEntityWithPassengers(skavenEntity);
                     break;
                 }
@@ -462,7 +462,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
     @Override
     protected void populateDefaultEquipmentSlots(net.minecraft.util.RandomSource random, DifficultyInstance difficulty) {
         int typepos = Math.max(Types.indexOf(getSkaventype()), 0);
-        ItemStack[][] equipment = getSkavenEquipment();
+        ItemStack[][][] equipment = getSkavenEquipment();
         int weapontype;
         if (equipment[typepos].length < 2) {
             weapontype = 0;
@@ -470,9 +470,9 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
             weapontype = this.random.nextInt(2);
         }
         if (equipment[typepos][weapontype].length > 0) {
-            this.setItemSlotAndDropWhenKilled(EquipmentSlot.MAINHAND, equipment[typepos][weapontype][0]);
+            this.setItemSlot(EquipmentSlot.MAINHAND, equipment[typepos][weapontype][0]);
             if (equipment[typepos][weapontype].length > 1) {
-                this.setItemSlotAndDropWhenKilled(EquipmentSlot.OFFHAND, equipment[typepos][weapontype][1]);
+                this.setItemSlot(EquipmentSlot.OFFHAND, equipment[typepos][weapontype][1]);
             }
         }
         Item item = getMainHandItem().getItem();
@@ -505,8 +505,8 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
         super.onSyncedDataUpdated(key);
     }
 
-    public static boolean checkSkavenSpawnRules(EntityType<SkavenEntity> type, LevelAccessor world, EntitySpawnReason spawnReason, BlockPos pos, net.minecraft.util.RandomSource random) {
-        if (world.getBiome(pos).is(BiomeTags.MEADOW) && pos.getY() > 50 && pos.getY() < 70 && random.nextFloat() < 0.5f) {
+    public static boolean checkSkavenSpawnRules(EntityType<SkavenEntity> type, ServerLevelAccessor world, EntitySpawnReason spawnReason, BlockPos pos, net.minecraft.util.RandomSource random) {
+        if (world.getBiome(pos).is(BiomeTags.ALLOWS_SURFACE_SLIME_SPAWNS) && pos.getY() > 50 && pos.getY() < 70 && random.nextFloat() < 0.5f) {
             return Monster.checkMonsterSpawnRules(type, world, spawnReason, pos, random);
         } else if (pos.getY() < 60) return Monster.checkMonsterSpawnRules(type, world, spawnReason, pos, random);
         return false;
@@ -515,7 +515,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
     @Override
     public boolean isBlocking() {
         if (this.getOffhandItem().getItem() instanceof net.minecraft.world.item.ShieldItem && getTarget() != null && this.random.nextFloat() < 0.25) {
-            playSound(SoundEvents.SHIELD_BLOCK, 1, 1);
+            playSound(SoundEvents.SHIELD_BLOCK.value(), 1, 1);
             return true;
         } else return false;
     }

@@ -10,6 +10,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileDeflection;
@@ -125,7 +126,7 @@ public abstract class ProjectileBase extends AbstractArrow {
 
             this.piercedEntities.add(hitentity.getId());
         }
-        boolean isEnderman = hitentity.getType() == EntityType.ENDERMAN;
+        boolean isEnderman = hitentity.getType() == EntityTypes.ENDERMAN;
         int intFireticks = hitentity.getRemainingFireTicks();
         if (this.isOnFire() && !isEnderman) {
             hitentity.igniteForSeconds(5);
@@ -142,12 +143,12 @@ public abstract class ProjectileBase extends AbstractArrow {
                     this.doKnockback(livingentity, damagesource);
                 }
                 if (this.level() instanceof ServerLevel serverworld && shooterentity instanceof LivingEntity) {
-                    EnchantmentHelper.doPostHurtEffects(livingentity, this.getWeaponItem());
+                    EnchantmentHelper.doPostAttackEffectsWithItemSource(serverworld, livingentity, damagesource, this.getWeaponItem());
                 }
 
                 this.doPostHurtEffects(livingentity);
                 if (livingentity != shooterentity && livingentity instanceof Player && shooterentity instanceof ServerPlayer && !this.isSilent()) {
-                    ((ServerPlayer) shooterentity).connection.send(new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.ARROW_HIT_PLAYER, 0.0F));
+                    ((ServerPlayer) shooterentity).connection.send(new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0.0F));
                 }
                 if (!livingentity.isAlive() && this.piercingKilledEntities != null) {
                     this.piercingKilledEntities.add(shooterentity);
@@ -160,8 +161,8 @@ public abstract class ProjectileBase extends AbstractArrow {
             }
         } else {
             hitentity.setRemainingFireTicks(intFireticks);
-            this.deflect(ProjectileDeflection.SIMPLE, hitentity, this.getOwner(), false);
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.2D));
+            this.deflect(ProjectileDeflection.REVERSE, hitentity, net.minecraft.world.entity.EntityReference.of(this.getOwner()), false);
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.2D));
             if (!this.level().isClientSide() && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
                 discard();
             }

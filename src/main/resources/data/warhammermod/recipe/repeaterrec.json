@@ -11,13 +11,9 @@
   "key":
   {
     "M":
-    {
-      "item": "warhammermod:musket"
-    },
+    "warhammermod:musket",
     "L":
-    {
-      "item": "minecraft:lead"
-    }
+    "minecraft:lead"
   },
 
   "result":

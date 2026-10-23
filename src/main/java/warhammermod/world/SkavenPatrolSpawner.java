@@ -9,7 +9,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.CustomSpawner;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -26,10 +26,10 @@ public class SkavenPatrolSpawner implements CustomSpawner {
         if (!spawnMonsters) {
             return;
         }
-        if (!world.getGameRules().getBoolean(GameRules.SPAWN_PATROLS)) {
+        if (!world.getGameRules().get(GameRules.SPAWN_PATROLS)) {
             return;
         }
-        RandomSource random = world.random;
+        RandomSource random = world.getRandom();
         --this.nextTick;
         if (this.nextTick > 0) {
             return;
@@ -49,10 +49,6 @@ public class SkavenPatrolSpawner implements CustomSpawner {
             int k = (24 + random.nextInt(24)) * (random.nextBoolean() ? -1 : 1);
             BlockPos.MutableBlockPos mutable = player.blockPosition().mutable().move(j, 0, k);
             if (!world.hasChunksAt(mutable.getX() - 10, mutable.getZ() - 10, mutable.getX() + 10, mutable.getZ() + 10)) {
-                return;
-            }
-            Holder<net.minecraft.world.level.biome.Biome> biomeHolder = world.getBiome(mutable);
-            if (biomeHolder.is(net.minecraft.tags.BiomeTags.WITHOUT_PATROL_SPAWNS)) {
                 return;
             }
             int patrol_size = 0;

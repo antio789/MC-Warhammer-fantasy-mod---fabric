@@ -11,13 +11,9 @@
 
   "key":
   {
-    "I": {
-      "item":"minecraft:cobblestone"
-    },
+    "I": "minecraft:cobblestone",
     "S":
-    {
-      "item": "minecraft:stick"
-    }
+    "minecraft:stick"
   },
 
   "result":

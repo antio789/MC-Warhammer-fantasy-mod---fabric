@@ -11,18 +11,11 @@
   "key":
   {
     "N":
-    {
-      "item": "minecraft:iron_nugget"
-    },
+    "minecraft:iron_nugget",
     "G":
-    {
-      "item": "minecraft:gunpowder"
-
-    },
+    "minecraft:gunpowder",
     "P":
-    {
-      "item": "minecraft:paper"
-    }
+    "minecraft:paper"
   },
 
   "result":

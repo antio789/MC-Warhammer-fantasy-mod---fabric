@@ -11,7 +11,7 @@ import net.minecraft.world.entity.projectile.hurtingprojectile.Fireball;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
@@ -73,7 +73,7 @@ public class FlameEntity extends Fireball {
             return;
         }
         Entity entity = this.getOwner();
-        if (!(entity instanceof Mob) || this.level().getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
+        if (!(entity instanceof Mob) || ((ServerLevel) this.level()).getGameRules().get(GameRules.MOB_GRIEFING)) {
             BlockPos blockPos = blockHitResult.getBlockPos().relative(blockHitResult.getDirection());
             if (this.level().isEmptyBlock(blockPos)) {
                 this.level().setBlockAndUpdate(blockPos, BaseFireBlock.getState(this.level(), blockPos));

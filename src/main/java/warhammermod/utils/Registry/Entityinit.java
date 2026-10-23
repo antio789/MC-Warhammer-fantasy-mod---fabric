@@ -55,7 +55,6 @@ public class Entityinit {
 
         FabricDefaultAttributeRegistry.register(SKAVEN, SkavenEntity.createMonsterAttributes());
         FabricDefaultAttributeRegistry.register(Pegasus, PegasusEntity.createBaseHorseAttributes());
-        FabricDefaultAttributeRegistry.register(DWARF, DwarfEntity.createDwarfAttributes());
 
         SKAVEN_SPAWN_EGG = ItemsInit.register("skaven_egg", properties -> new SpawnEggItem(properties.spawnEgg(SKAVEN)));
         Pegasus_SPAWN_EGG = ItemsInit.register("pegasus_egg", properties -> new SpawnEggItem(properties.spawnEgg(Pegasus)));

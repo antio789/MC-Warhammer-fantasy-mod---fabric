@@ -10,16 +10,10 @@
 
   "key":
   {
-    "G": {
-      "item":"minecraft:gold_ingot"
-    },
+    "G": "minecraft:gold_ingot",
     "S":
-    {
-      "item": "minecraft:shield"
-    },
-    "P":{
-      "item":"minecraft:purple_dye"
-    }
+    "minecraft:shield",
+    "P":"minecraft:purple_dye"
   },
 
   "result":

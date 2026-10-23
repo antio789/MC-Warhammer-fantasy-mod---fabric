@@ -9,10 +9,15 @@ import net.minecraft.world.phys.EntityHitResult;
 import warhammermod.utils.Registry.Entityinit;
 import warhammermod.Items.ItemsInit;
 
-public class GrenadeEntity extends ProjectileBase {
+public class GrenadeEntity extends ProjectileBase implements net.minecraft.world.entity.projectile.ItemSupplier {
 
     public GrenadeEntity(EntityType<? extends GrenadeEntity> type, Level level) {
         super(type, level);
+    }
+
+    @Override
+    public ItemStack getItem() {
+        return new ItemStack(ItemsInit.Grenade);
     }
 
     public GrenadeEntity(Level worldin, LivingEntity shooter, float damageIn, EntityType<? extends ProjectileBase> type, ItemStack stack, ItemStack ammo) {

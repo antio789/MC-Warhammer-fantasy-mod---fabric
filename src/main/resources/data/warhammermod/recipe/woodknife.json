@@ -11,13 +11,9 @@
 
   "key":
   {
-    "P": {
-      "tag": "minecraft:planks"
-    },
+    "P": "#minecraft:planks",
     "S":
-    {
-      "item": "minecraft:stick"
-    }
+    "minecraft:stick"
   },
 
   "result":

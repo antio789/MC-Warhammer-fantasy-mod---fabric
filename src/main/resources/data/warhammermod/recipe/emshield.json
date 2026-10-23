@@ -10,19 +10,11 @@
 
   "key":
   {
-    "I": {
-      "item":"minecraft:iron_ingot"
-    },
+    "I": "minecraft:iron_ingot",
     "S":
-    {
-      "item": "minecraft:shield"
-    },
-    "W":{
-      "item":"minecraft:white_dye"
-    },
-    "R":{
-      "item":"minecraft:red_dye"
-    }
+    "minecraft:shield",
+    "W":"minecraft:white_dye",
+    "R":"minecraft:red_dye"
   },
 
   "result":

@@ -8,12 +8,8 @@
   ],
 
   "key": {
-    "S": {
-      "item": "minecraft:string"
-    },
-    "L": {
-      "item":"minecraft:leather"
-    }
+    "S": "minecraft:string",
+    "L": "minecraft:leather"
 
   },
 

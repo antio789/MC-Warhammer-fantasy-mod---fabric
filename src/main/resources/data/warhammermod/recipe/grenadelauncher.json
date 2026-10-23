@@ -8,12 +8,8 @@
   ],
 
   "key": {
-    "M": {
-      "item": "warhammermod:musket"
-    },
-    "I": {
-      "item":"minecraft:iron_ingot"
-    }
+    "M": "warhammermod:musket",
+    "I": "minecraft:iron_ingot"
   },
 
   "result":

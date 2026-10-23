@@ -20,7 +20,6 @@ import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.ai.behavior.SetLookAndInteract;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom;
-import net.minecraft.world.entity.ai.behavior.SetWalkTargetFromBlockMemory;
 import net.minecraft.world.entity.ai.behavior.StrollAroundPoi;
 import net.minecraft.world.entity.ai.behavior.Swim;
 import net.minecraft.world.entity.ai.behavior.UpdateActivityFromSchedule;
@@ -65,13 +64,13 @@ public class DwarfVillagerTasks {
                 Pair.of(0, new PanicTaskDwarf()),
                 Pair.of(0, WakeUp.create()),
                 Pair.of(0, VillagerCalmDown.create()),
-                Pair.of(0, BecomePassiveIfMemoryPresent.create(MemoryModuleType.HURT_BY, false)),
-                Pair.of(0, new EraseMemoryIf<DwarfEntity>(DwarfEntity.class, entity -> !PanicTaskDwarf.isHostileNearby(entity), MemoryModuleType.NEAREST_HOSTILE)),
+                Pair.of(0, BecomePassiveIfMemoryPresent.create(MemoryModuleType.HURT_BY, 40)),
+                Pair.of(0, EraseMemoryIf.create((DwarfEntity entity) -> !PanicTaskDwarf.isHostileNearby(entity), MemoryModuleType.NEAREST_HOSTILE)),
                 Pair.of(1, new MoveToTargetSink()),
                 Pair.of(2, WorkStationCompetitionTaskDwarf.create()),
                 Pair.of(3, new FollowCustomerTaskDwarf(speed)),
                 Pair.of(5, GoToWantedItem.create(speed, false, 4)),
-                Pair.of(6, AcquirePoi.create(profession.acquirableWorkstation(), MemoryModuleType.JOB_SITE, MemoryModuleType.POTENTIAL_JOB_SITE, true, Optional.empty())),
+                Pair.of(6, AcquirePoi.create(profession.acquirableWorkstation(), MemoryModuleType.JOB_SITE, MemoryModuleType.POTENTIAL_JOB_SITE, true, Optional.empty(), (serverLevel, blockPos) -> true)),
                 Pair.of(7, new WalkTowardJobSiteTaskDwarf(speed)),
                 Pair.of(8, TakeJobSiteTaskDwarf.create(speed)),
                 Pair.of(10, AcquirePoi.create(poiType -> poiType.is(PoiTypes.HOME), MemoryModuleType.HOME, false, Optional.of((byte) 14))),
@@ -111,7 +110,7 @@ public class DwarfVillagerTasks {
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super DwarfEntity>>> createRestTasks(float speed) {
         return ImmutableList.of(
                 Pair.of(2, VillagerWalkTowardsTaskDwarf.create(MemoryModuleType.HOME, speed, 1, 150, 1200)),
-                Pair.of(3, SetWalkTargetFromBlockMemory.create(MemoryModuleType.HOME, speed, 1, 150, 1200)),
+                Pair.of(3, VillagerWalkTowardsTaskDwarf.create(MemoryModuleType.HOME, speed, 1, 150, 1200)),
                 Pair.of(5, new RunOne<>(ImmutableList.of(
                         Pair.of(GoToPointOfInterestTaskDwarf.create(speed, 4), 2),
                         Pair.of(new DoNothing(20, 40), 2)))),
@@ -178,7 +177,7 @@ public class DwarfVillagerTasks {
 
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super DwarfEntity>>> createHideTasks(float speed) {
         return ImmutableList.of(
-                Pair.of(0, SetWalkTargetFromBlockMemory.create(MemoryModuleType.HIDING_PLACE, speed * 1.25f, 2, 150, 1000)),
+                Pair.of(0, VillagerWalkTowardsTaskDwarf.create(MemoryModuleType.HIDING_PLACE, speed * 1.25f, 2, 150, 1000)),
                 createBusyFollowTask(),
                 Pair.of(99, UpdateActivityFromSchedule.create()));
     }

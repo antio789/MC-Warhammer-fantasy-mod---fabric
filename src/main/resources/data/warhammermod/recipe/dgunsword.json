@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
 
   "ingredients": [
-    {
-      "item":"minecraft:diamond_sword"
-    },
-    {
-      "item":"minecraft:slime_ball"
-    },
-    {
-      "item":"warhammermod:pistol"
-    }
+    "minecraft:diamond_sword",
+    "minecraft:slime_ball",
+    "warhammermod:pistol"
   ],
 
   "result":

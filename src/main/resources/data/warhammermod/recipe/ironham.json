@@ -10,13 +10,9 @@
 
   "key":
   {
-    "I": {
-      "item":"minecraft:iron_ingot"
-    },
+    "I": "minecraft:iron_ingot",
     "S":
-    {
-      "item": "minecraft:stick"
-    }
+    "minecraft:stick"
   },
 
   "result":

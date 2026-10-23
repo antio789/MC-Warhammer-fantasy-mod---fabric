@@ -8,18 +8,10 @@
   ],
 
   "key": {
-    "F": {
-      "item": "minecraft:flint_and_steel"
-    },
-    "I": {
-      "item":"minecraft:iron_ingot"
-    },
-    "P": {
-      "tag": "minecraft:planks"
-    },
-    "L":{
-      "tag": "minecraft:logs"
-    }
+    "F": "minecraft:flint_and_steel",
+    "I": "minecraft:iron_ingot",
+    "P": "#minecraft:planks",
+    "L":"#minecraft:logs"
 
   },
 

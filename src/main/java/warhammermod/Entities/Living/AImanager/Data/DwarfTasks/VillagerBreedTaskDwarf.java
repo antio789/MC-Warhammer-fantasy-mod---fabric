@@ -98,15 +98,14 @@ public class VillagerBreedTaskDwarf extends Behavior<DwarfEntity> {
     }
 
     private Optional<DwarfEntity> createChild(ServerLevel world, DwarfEntity parent, DwarfEntity partner) {
-        DwarfEntity dwarfEntity = parent.createChild(world, partner);
+        DwarfEntity dwarfEntity = parent.getBreedOffspring(world, partner);
         if (dwarfEntity == null) {
             return Optional.empty();
         }
         parent.setAge(6000);
         partner.setAge(6000);
         dwarfEntity.setAge(-24000);
-        dwarfEntity.moveTo(parent.getX(), parent.getY(), parent.getZ());
-        dwarfEntity.setYRot(0.0f);
+        dwarfEntity.snapTo(parent.getX(), parent.getY(), parent.getZ(), 0.0f, 0.0f);
         world.addFreshEntityWithPassengers(dwarfEntity);
         world.broadcastEntityEvent(dwarfEntity, (byte) 12);
         return Optional.of(dwarfEntity);
