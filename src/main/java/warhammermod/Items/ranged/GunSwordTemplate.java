@@ -19,7 +19,7 @@ import warhammermod.Items.Ammocomponent;
 import warhammermod.Items.IReloadItem;
 import warhammermod.Items.melee.HammerTemplate;
 import warhammermod.utils.ModEnchantmentHelper;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 import warhammermod.utils.Registry.WHRegistry;
 
 import java.util.Random;

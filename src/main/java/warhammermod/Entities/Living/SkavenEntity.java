@@ -61,7 +61,7 @@ import warhammermod.Items.ranged.SlingTemplate;
 import warhammermod.Items.ranged.WarpgunTemplate;
 import warhammermod.utils.ModEnchantmentHelper;
 import warhammermod.utils.Registry.Entityinit;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 import warhammermod.utils.Registry.WHRegistry;
 import warhammermod.utils.functions;
 

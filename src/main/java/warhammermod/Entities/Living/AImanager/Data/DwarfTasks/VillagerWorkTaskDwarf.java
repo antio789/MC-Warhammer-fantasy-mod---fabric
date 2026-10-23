@@ -25,12 +25,12 @@ public class VillagerWorkTaskDwarf extends Behavior<DwarfEntity> {
         if (serverWorld.getGameTime() - this.lastCheckedTime < 300L) {
             return false;
         }
-        if (serverWorld.random.nextInt(2) != 0) {
+        if (serverWorld.getRandom().nextInt(2) != 0) {
             return false;
         }
         this.lastCheckedTime = serverWorld.getGameTime();
         GlobalPos globalPos = dwarfEntity.getBrain().getMemory(MemoryModuleType.JOB_SITE).get();
-        return globalPos.dimension() == serverWorld.dimension() && globalPos.pos().closerThan(dwarfEntity.position(), 1.73);
+        return globalPos.dimension() == serverWorld.dimension() && globalPos.pos().closerThan(dwarfEntity.blockPosition(), 1.73);
     }
 
     @Override
@@ -55,6 +55,6 @@ public class VillagerWorkTaskDwarf extends Behavior<DwarfEntity> {
             return false;
         }
         GlobalPos globalPos = optional.get();
-        return globalPos.dimension() == serverWorld.dimension() && globalPos.pos().closerThan(dwarfEntity.position(), 1.73);
+        return globalPos.dimension() == serverWorld.dimension() && globalPos.pos().closerThan(dwarfEntity.blockPosition(), 1.73);
     }
 }

@@ -4,7 +4,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 
 public class functions {
     static int timer;

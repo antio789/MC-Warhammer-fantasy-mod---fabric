@@ -19,7 +19,7 @@ public class GoToWorkTaskDwarf {
                         context.registered(MemoryModuleType.JOB_SITE))
                 .apply(context, (potentialJobSite, jobSite) -> (world, entity, time) -> {
                     GlobalPos globalPos = context.get(potentialJobSite);
-                    if (!globalPos.pos().closerThan(entity.position(), 2.0) && !entity.isNatural()) {
+                    if (!globalPos.pos().closerThan(entity.blockPosition(), 2.0) && !entity.isNatural()) {
                         return false;
                     }
                     potentialJobSite.erase();

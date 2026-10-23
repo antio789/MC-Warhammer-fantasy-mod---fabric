@@ -60,6 +60,7 @@ import net.minecraft.world.item.trading.MerchantOffer;
 import net.minecraft.world.item.trading.MerchantOffers;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
@@ -105,9 +106,9 @@ public class DwarfEntity extends AbstractVillager {
 
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_MODULES = ImmutableList.of(
             MemoryModuleType.HOME, MemoryModuleType.JOB_SITE, MemoryModuleType.POTENTIAL_JOB_SITE, MemoryModuleType.MEETING_POINT,
-            MemoryModuleType.MOBS, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
+            MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES,
             MemoryModuleType.VISIBLE_VILLAGER_BABIES, MemoryModuleType.NEAREST_PLAYERS,
-            MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER,
+            MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_TARGETABLE_PLAYER_NOT_WEARING_GOLD,
             MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryModuleType.ITEM_PICKUP_COOLDOWN_TICKS,
             MemoryModuleType.WALK_TARGET, MemoryModuleType.LOOK_TARGET,
             MemoryModuleType.INTERACTION_TARGET, MemoryModuleType.BREED_TARGET,
@@ -127,7 +128,7 @@ public class DwarfEntity extends AbstractVillager {
     public static final Map<MemoryModuleType<GlobalPos>, BiPredicate<DwarfEntity, Holder<PoiType>>> POINTS_OF_INTEREST =
             ImmutableMap.of(MemoryModuleType.HOME, (dwarf, holder) -> holder.is(PoiTypes.HOME),
                     MemoryModuleType.JOB_SITE, (dwarf, holder) -> dwarf.getProfession().heldWorkstation().test(holder),
-                    MemoryModuleType.POTENTIAL_JOB_SITE, (dwarf, holder) -> DwarfProfessionRecord.ACQUIRABLE_JOB_SITE.test(holder),
+                    MemoryModuleType.POTENTIAL_JOB_SITE, (dwarf, holder) -> holder.is(DwarfProfessionRecord.ACQUIRABLE_JOB_SITE),
                     MemoryModuleType.MEETING_POINT, (dwarf, holder) -> holder.is(PoiTypes.MEETING));
 
     /**
@@ -162,23 +163,25 @@ public class DwarfEntity extends AbstractVillager {
 
     private void registerBrainGoals(Brain<DwarfEntity> entityBrain) {
         DwarfProfessionRecord dwarfProfession = this.getProfession();
+        var noCond = com.google.common.collect.ImmutableSet.<Pair<MemoryModuleType<?>, MemoryStatus>>of();
+        var noErase = com.google.common.collect.ImmutableSet.<MemoryModuleType<?>>of();
         if (this.isBaby()) {
             entityBrain.setSchedule(net.minecraft.world.attribute.EnvironmentAttributes.BABY_VILLAGER_ACTIVITY);
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PLAY, DwarfVillagerTasks.createPlayTasks(0.5F));
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, DwarfVillagerTasks.createPanicTasks(0.5F));
+            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PLAY, DwarfVillagerTasks.createPlayTasks(0.5F), noCond, noErase);
+            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F), noCond, noErase);
         } else {
             entityBrain.setSchedule(net.minecraft.world.attribute.EnvironmentAttributes.VILLAGER_ACTIVITY);
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F));
-            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.WORK, DwarfVillagerTasks.createWorkTasks(dwarfProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT)));
+            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PANIC, DwarfCombattasks.createPanicTasks(0.5F), noCond, noErase);
+            entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.WORK, DwarfVillagerTasks.createWorkTasks(dwarfProfession, 0.5F), ImmutableSet.of(Pair.of(MemoryModuleType.JOB_SITE, MemoryStatus.VALUE_PRESENT)), noErase);
         }
 
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.CORE, DwarfVillagerTasks.createCoreTasks(dwarfProfession, 0.5F));
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.MEET, DwarfVillagerTasks.createMeetTasks(0.5f), ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT)));
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.REST, DwarfVillagerTasks.createRestTasks(0.5f));
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.IDLE, DwarfVillagerTasks.createIdleTasks(0.5f));
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PRE_RAID, DwarfVillagerTasks.createPreRaidTasks(0.5f));
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.RAID, DwarfVillagerTasks.createRaidTasks(0.5f));
-        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.HIDE, DwarfVillagerTasks.createHideTasks(0.5f));
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.CORE, DwarfVillagerTasks.createCoreTasks(dwarfProfession, 0.5F), noCond, noErase);
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.MEET, DwarfVillagerTasks.createMeetTasks(0.5f), ImmutableSet.of(Pair.of(MemoryModuleType.MEETING_POINT, MemoryStatus.VALUE_PRESENT)), noErase);
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.REST, DwarfVillagerTasks.createRestTasks(0.5f), noCond, noErase);
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.IDLE, DwarfVillagerTasks.createIdleTasks(0.5f), noCond, noErase);
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.PRE_RAID, DwarfVillagerTasks.createPreRaidTasks(0.5f), noCond, noErase);
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.RAID, DwarfVillagerTasks.createRaidTasks(0.5f), noCond, noErase);
+        entityBrain.addActivity(net.minecraft.world.entity.schedule.Activity.HIDE, DwarfVillagerTasks.createHideTasks(0.5f), noCond, noErase);
         entityBrain.setCoreActivities(ImmutableSet.of(net.minecraft.world.entity.schedule.Activity.CORE));
         entityBrain.setDefaultActivity(net.minecraft.world.entity.schedule.Activity.IDLE);
         entityBrain.updateActivityFromSchedule(this.level().environmentAttributes(), this.level().getGameTime(), this.position());
@@ -314,7 +317,7 @@ public class DwarfEntity extends AbstractVillager {
     @Override
     public boolean isBlocking() {
         if (this.getOffhandItem().getItem() instanceof ShieldItem && this.isAggressive() && this.random.nextFloat() < 0.33) {
-            playSound(SoundEvents.SHIELD_BLOCK, 1, 1);
+            playSound(SoundEvents.SHIELD_BLOCK.value(), 1, 1);
             return true;
         } else return false;
     }
@@ -336,7 +339,7 @@ public class DwarfEntity extends AbstractVillager {
         out.putInt("level", this.getProfessionLevel());
         out.putInt("profession", this.getProfessionID());
         out.putByte("FoodLevel", (byte) this.foodLevel);
-        out.store("Gossips", Tag.TAG_LIST, this.gossip.serializeGossipAsTag(NbtOps.INSTANCE));
+        out.store("Gossips", GossipContainer.CODEC, this.gossip);
         out.putInt("Xp", this.experience);
         out.putLong("LastRestockdwarf", this.lastRestockTime);
         out.putLong("LastGossipDecay", this.lastGossipDecayTime);
@@ -355,8 +358,8 @@ public class DwarfEntity extends AbstractVillager {
         this.entityData.set(Level, level);
 
         this.foodLevel = in.getByteOr("FoodLevel", (byte) 0);
-        ListTag nbtList = in.listOrEmpty("Gossips").stream().map(tag -> (net.minecraft.nbt.CompoundTag) tag).collect(java.util.stream.Collectors.toCollection(ListTag::new));
-        this.gossip.updateGossipFromTag(NbtOps.INSTANCE, nbtList);
+        var gossipData = in.read("Gossips", GossipContainer.CODEC).orElseGet(GossipContainer::new);
+        gossipData.getGossipEntries().forEach((uuid, map) -> map.forEach((type, value) -> this.gossip.add(uuid, type, value)));
         this.experience = in.getIntOr("Xp", 0);
         this.lastRestockTime = in.getLongOr("LastRestockDwarf", 0L);
         this.restocksToday = in.getIntOr("RestocksTodayDwarf", 0);
@@ -881,6 +884,6 @@ public class DwarfEntity extends AbstractVillager {
      * Proxy to avoid class-init cycle: ItemsInit references DwarfTrades which references professions which need the registry.
      */
     private static final class ItemsInitProxy {
-        static final Item BEER = warhammermod.utils.Registry.ItemsInit.BEER;
+        static final Item BEER = warhammermod.Items.ItemsInit.BEER;
     }
 }

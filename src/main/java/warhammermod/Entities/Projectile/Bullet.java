@@ -6,7 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import warhammermod.utils.Registry.Entityinit;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 
 public class Bullet extends ProjectileBase {
     public Bullet(Level world) {

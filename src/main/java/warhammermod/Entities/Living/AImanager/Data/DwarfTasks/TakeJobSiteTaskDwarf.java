@@ -21,7 +21,7 @@ public class TakeJobSiteTaskDwarf {
         return BehaviorBuilder.create(context -> context.group(
                         context.present(MemoryModuleType.POTENTIAL_JOB_SITE),
                         context.absent(MemoryModuleType.JOB_SITE),
-                        context.present(MemoryModuleType.MOBS),
+                        context.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES),
                         context.registered(MemoryModuleType.WALK_TARGET),
                         context.registered(MemoryModuleType.LOOK_TARGET))
                 .apply(context, (potentialJobSite, jobSite, mobs, walkTarget, lookTarget) -> (world, entity, time) -> {
@@ -36,7 +36,7 @@ public class TakeJobSiteTaskDwarf {
                     if (optional.isEmpty()) {
                         return true;
                     }
-                    context.get(mobs).stream().filter(mob -> mob instanceof DwarfEntity dwarf && mob != entity && mob.isAlive()
+                    context.get(mobs).nearbyEntities().stream().filter(mob -> mob instanceof DwarfEntity dwarf && mob != entity && mob.isAlive()
                             && TakeJobSiteTaskDwarf.canUseJobSite(optional.get(), dwarf, blockPos)).findFirst().ifPresent(dwarf -> {
                         walkTarget.erase();
                         lookTarget.erase();

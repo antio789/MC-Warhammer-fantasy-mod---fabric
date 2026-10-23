@@ -1,31 +1,25 @@
-/*
- * Decompiled with CFR 0.2.2 (FabricMC 7c48b8c4).
- */
 package warhammermod.Entities.Living.AImanager.Data.DwarfTasks;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.CropBlock;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.ai.brain.BlockPosLookTarget;
-import net.minecraft.entity.ai.brain.MemoryModuleState;
-import net.minecraft.entity.ai.brain.MemoryModuleType;
-import net.minecraft.entity.ai.brain.WalkTarget;
-import net.minecraft.entity.ai.brain.task.MultiTickTask;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.BoneMealItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldEvents;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BlockPosTracker;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.memory.WalkTarget;
+import net.minecraft.world.item.BoneMealItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.CropBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import warhammermod.Entities.Living.DwarfEntity;
 
 import java.util.Optional;
 
-public class BoneMealTaskDwarf
-extends MultiTickTask<DwarfEntity> {
+public class BoneMealTaskDwarf extends Behavior<DwarfEntity> {
     private static final int MAX_DURATION = 80;
     private long startTime;
     private long lastEndEntityAge;
@@ -33,15 +27,15 @@ extends MultiTickTask<DwarfEntity> {
     private Optional<BlockPos> pos = Optional.empty();
 
     public BoneMealTaskDwarf() {
-        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryModuleState.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryModuleState.VALUE_ABSENT));
+        super(ImmutableMap.of(MemoryModuleType.LOOK_TARGET, MemoryStatus.VALUE_ABSENT, MemoryModuleType.WALK_TARGET, MemoryStatus.VALUE_ABSENT));
     }
 
     @Override
-    protected boolean shouldRun(ServerWorld serverWorld, DwarfEntity dwarfEntity) {
-        if (dwarfEntity.age % 10 != 0 || this.lastEndEntityAge != 0L && this.lastEndEntityAge + 160L > (long)dwarfEntity.age) {
+    protected boolean checkExtraStartConditions(ServerLevel serverWorld, DwarfEntity dwarfEntity) {
+        if (dwarfEntity.tickCount % 10 != 0 || this.lastEndEntityAge != 0L && this.lastEndEntityAge + 160L > (long) dwarfEntity.tickCount) {
             return false;
         }
-        if (dwarfEntity.getInventory().count(Items.BONE_MEAL) <= 0) {
+        if (dwarfEntity.getInventory().countItem(Items.BONE_MEAL) <= 0) {
             return false;
         }
         this.pos = this.findBoneMealPos(serverWorld, dwarfEntity);
@@ -49,78 +43,77 @@ extends MultiTickTask<DwarfEntity> {
     }
 
     @Override
-    protected boolean shouldKeepRunning(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
+    protected boolean canStillUse(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
         return this.duration < 80 && this.pos.isPresent();
     }
 
-    private Optional<BlockPos> findBoneMealPos(ServerWorld world, DwarfEntity entity) {
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
+    private Optional<BlockPos> findBoneMealPos(ServerLevel world, DwarfEntity entity) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         Optional<BlockPos> optional = Optional.empty();
         int i = 0;
         for (int j = -1; j <= 1; ++j) {
             for (int k = -1; k <= 1; ++k) {
                 for (int l = -1; l <= 1; ++l) {
-                    mutable.set(entity.getBlockPos(), j, k, l);
-                    if (!this.canBoneMeal(mutable, world) || world.random.nextInt(++i) != 0) continue;
-                    optional = Optional.of(mutable.toImmutable());
+                    mutable.set(entity.blockPosition().offset(j, k, l));
+                    if (!this.canBoneMeal(mutable, world) || world.getRandom().nextInt(++i) != 0) continue;
+                    optional = Optional.of(mutable.immutable());
                 }
             }
         }
         return optional;
     }
 
-    private boolean canBoneMeal(BlockPos pos, ServerWorld world) {
+    private boolean canBoneMeal(BlockPos pos, ServerLevel world) {
         BlockState blockState = world.getBlockState(pos);
-        Block block = blockState.getBlock();
-        return block instanceof CropBlock && !((CropBlock)block).isMature(blockState);
+        if (blockState.getBlock() instanceof CropBlock cropBlock) {
+            return !cropBlock.isMaxAge(blockState);
+        }
+        return false;
     }
 
     @Override
-    protected void run(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
+    protected void start(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
         this.addLookWalkTargets(dwarfEntity);
-        dwarfEntity.equipStack(EquipmentSlot.OFFHAND, new ItemStack(Items.BONE_MEAL));
+        dwarfEntity.setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.BONE_MEAL));
         this.startTime = l;
         this.duration = 0;
     }
 
     private void addLookWalkTargets(DwarfEntity villager) {
         this.pos.ifPresent(pos -> {
-            BlockPosLookTarget blockPosLookTarget = new BlockPosLookTarget((BlockPos)pos);
-            villager.getBrain().remember(MemoryModuleType.LOOK_TARGET, blockPosLookTarget);
-            villager.getBrain().remember(MemoryModuleType.WALK_TARGET, new WalkTarget(blockPosLookTarget, 0.5f, 1));
+            BlockPosTracker blockPosLookTarget = new BlockPosTracker(pos);
+            villager.getBrain().setMemory(MemoryModuleType.LOOK_TARGET, blockPosLookTarget);
+            villager.getBrain().setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(pos, 0.5f, 1));
         });
     }
 
     @Override
-    protected void finishRunning(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
-        dwarfEntity.equipStack(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
-        this.lastEndEntityAge = dwarfEntity.age;
+    protected void stop(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
+        dwarfEntity.setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+        this.lastEndEntityAge = dwarfEntity.tickCount;
     }
 
     @Override
-    protected void keepRunning(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
+    protected void tick(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
         BlockPos blockPos = this.pos.get();
-        if (l < this.startTime || !blockPos.isWithinDistance(dwarfEntity.getPos(), 1.0)) {
+        if (l < this.startTime || !blockPos.closerThan(dwarfEntity.blockPosition(), 1.0)) {
             return;
         }
         ItemStack itemStack = ItemStack.EMPTY;
-        SimpleInventory simpleInventory = dwarfEntity.getInventory();
-        int i = simpleInventory.size();
+        SimpleContainer simpleInventory = dwarfEntity.getInventory();
+        int i = simpleInventory.getContainerSize();
         for (int j = 0; j < i; ++j) {
-            ItemStack itemStack2 = simpleInventory.getStack(j);
-            if (!itemStack2.isOf(Items.BONE_MEAL)) continue;
+            ItemStack itemStack2 = simpleInventory.getItem(j);
+            if (!itemStack2.is(Items.BONE_MEAL)) continue;
             itemStack = itemStack2;
             break;
         }
-        if (!itemStack.isEmpty() && BoneMealItem.useOnFertilizable(itemStack, serverWorld, blockPos)) {
-            serverWorld.syncWorldEvent(WorldEvents.BONE_MEAL_USED, blockPos, 15);
+        if (!itemStack.isEmpty() && BoneMealItem.growCrop(itemStack, serverWorld, blockPos)) {
+            serverWorld.levelEvent(1503, blockPos, 15);
             this.pos = this.findBoneMealPos(serverWorld, dwarfEntity);
             this.addLookWalkTargets(dwarfEntity);
             this.startTime = l + 40L;
         }
         ++this.duration;
     }
-
-
 }
-

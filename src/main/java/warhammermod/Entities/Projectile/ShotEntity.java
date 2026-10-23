@@ -7,7 +7,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import warhammermod.utils.Registry.Entityinit;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 
 public class ShotEntity extends ProjectileBase {
     public BlockPos Playerpos;

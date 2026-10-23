@@ -14,7 +14,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 import warhammermod.utils.Registry.WHRegistry;
 import warhammermod.utils.reference;
 

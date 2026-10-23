@@ -11,7 +11,7 @@ import warhammermod.Entities.Projectile.WarpBulletEntity;
 import warhammermod.Items.AutogunBase;
 import warhammermod.Items.firecomponent;
 import warhammermod.utils.ModEnchantmentHelper;
-import warhammermod.utils.Registry.ItemsInit;
+import warhammermod.Items.ItemsInit;
 import warhammermod.utils.Registry.WHRegistry;
 
 public class RatlingGun extends AutogunBase {

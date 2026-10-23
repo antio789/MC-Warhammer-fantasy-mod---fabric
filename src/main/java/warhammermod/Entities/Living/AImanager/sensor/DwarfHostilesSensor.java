@@ -9,12 +9,12 @@ import warhammermod.utils.Registry.Entityinit;
 
 public class DwarfHostilesSensor extends NearestVisibleLivingEntitySensor {
     private static final ImmutableMap<net.minecraft.world.entity.EntityType<?>, Float> ACCEPTABLE_DISTANCE_FROM_HOSTILES = ImmutableMap.<net.minecraft.world.entity.EntityType<?>, Float>builder()
-            .put(net.minecraft.world.entity.EntityType.DROWNED, 8.0F).put(net.minecraft.world.entity.EntityType.EVOKER, 12.0F)
-            .put(net.minecraft.world.entity.EntityType.HUSK, 8.0F).put(net.minecraft.world.entity.EntityType.ILLUSIONER, 12.0F)
-            .put(net.minecraft.world.entity.EntityType.PILLAGER, 15.0F).put(net.minecraft.world.entity.EntityType.RAVAGER, 12.0F)
-            .put(net.minecraft.world.entity.EntityType.VEX, 8.0F).put(net.minecraft.world.entity.EntityType.VINDICATOR, 10.0F)
-            .put(net.minecraft.world.entity.EntityType.ZOGLIN, 10.0F).put(net.minecraft.world.entity.EntityType.ZOMBIE, 8.0F)
-            .put(net.minecraft.world.entity.EntityType.ZOMBIE_VILLAGER, 8.0F)
+            .put(net.minecraft.world.entity.EntityTypes.DROWNED, 8.0F).put(net.minecraft.world.entity.EntityTypes.EVOKER, 12.0F)
+            .put(net.minecraft.world.entity.EntityTypes.HUSK, 8.0F).put(net.minecraft.world.entity.EntityTypes.ILLUSIONER, 12.0F)
+            .put(net.minecraft.world.entity.EntityTypes.PILLAGER, 15.0F).put(net.minecraft.world.entity.EntityTypes.RAVAGER, 12.0F)
+            .put(net.minecraft.world.entity.EntityTypes.VEX, 8.0F).put(net.minecraft.world.entity.EntityTypes.VINDICATOR, 10.0F)
+            .put(net.minecraft.world.entity.EntityTypes.ZOGLIN, 10.0F).put(net.minecraft.world.entity.EntityTypes.ZOMBIE, 8.0F)
+            .put(net.minecraft.world.entity.EntityTypes.ZOMBIE_VILLAGER, 8.0F)
             .put(Entityinit.SKAVEN, 15F).build();
 
     @Override

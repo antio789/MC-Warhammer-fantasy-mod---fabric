@@ -24,7 +24,7 @@ public class MeetVillagerTaskDwarf {
                 .apply(context, (walkTarget, lookTarget, meetingPoint, visibleMobs, interactionTarget) -> (world, entity, time) -> {
                     GlobalPos globalPos = context.get(meetingPoint);
                     NearestVisibleLivingEntities livingTargetCache = context.get(visibleMobs);
-                    if (world.random.nextInt(100) == 0 && world.dimension() == globalPos.dimension() && globalPos.pos().closerThan(entity.position(), 4.0) && livingTargetCache.anyMatch(target -> Entityinit.DWARF.equals(target.getType()))) {
+                    if (world.getRandom().nextInt(100) == 0 && world.dimension() == globalPos.dimension() && globalPos.pos().closerThan(entity.blockPosition(), 4.0) && livingTargetCache.contains(target -> Entityinit.DWARF.equals(target.getType()))) {
                         livingTargetCache.findClosest(target -> Entityinit.DWARF.equals(target.getType()) && target.distanceToSqr(entity) <= 32.0).ifPresent(target -> {
                             interactionTarget.set(target);
                             lookTarget.set(new net.minecraft.world.entity.ai.behavior.EntityTracker((Entity) target, true));

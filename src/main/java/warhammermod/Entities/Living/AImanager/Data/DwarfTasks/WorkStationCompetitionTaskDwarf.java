@@ -13,12 +13,12 @@ public class WorkStationCompetitionTaskDwarf {
     public static BehaviorControl<DwarfEntity> create() {
         return BehaviorBuilder.create(context -> context.group(
                         context.present(MemoryModuleType.JOB_SITE),
-                        context.present(MemoryModuleType.MOBS))
+                        context.present(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES))
                 .apply(context, (jobSite, mobs) -> (world, entity, time) -> {
                     GlobalPos globalPos = context.get(jobSite);
 
                     world.getPoiManager().getType(globalPos.pos()).ifPresent(
-                            poiType -> context.get(mobs).stream().filter(
+                            poiType -> context.get(mobs).nearbyEntities().stream().filter(
                                     mob -> mob instanceof DwarfEntity entity1 && mob != entity && mob.isAlive() &&
                                             WorkStationCompetitionTaskDwarf.isUsingWorkStationAt(globalPos, poiType, entity1)
                             ).reduce(entity, WorkStationCompetitionTaskDwarf::keepJobSiteForMoreExperiencedVillager));

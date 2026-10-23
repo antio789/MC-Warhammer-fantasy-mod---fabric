@@ -81,6 +81,9 @@ public class WHRegistry {
         SECONDARY_POIS = Registry.register(BuiltInRegistries.SENSOR_TYPE, reference.location("poissecond"), new SensorType<>(DwarfSecondaryPointsOfInterestSensor::new));
     }
 
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.storage.loot.LootTable> HERO_OF_THE_VILLAGE_LORD_GIFT_GAMEPLAY = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE, reference.location("gameplay/hero_of_the_village/lord_gift"));
+    public static final net.minecraft.resources.ResourceKey<net.minecraft.world.level.storage.loot.LootTable> GIVE_TUTORIAL_BOOK = net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.LOOT_TABLE, reference.location("gameplay/books"));
+
     public static final ResourceKey<Registry<DwarfProfessionRecord>> DwarfProfessionKey = ResourceKey.createRegistryKey(reference.location("dwarf_profession"));
     public static final Registry<DwarfProfessionRecord> DWARF_PROFESSIONS = FabricRegistryBuilder.createDefaulted(DwarfProfessionKey, reference.Dwarf_warrior).attribute(RegistryAttribute.SYNCED).buildAndRegister();
 

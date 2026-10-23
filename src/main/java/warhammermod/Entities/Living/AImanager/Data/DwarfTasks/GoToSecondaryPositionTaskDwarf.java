@@ -23,8 +23,8 @@ public class GoToSecondaryPositionTaskDwarf {
                     if (list.isEmpty()) {
                         return false;
                     }
-                    GlobalPos globalPos2 = list.get(world.random.nextInt(list.size()));
-                    if (globalPos2 == null || world.dimension() != globalPos2.dimension() || !globalPos.pos().closerThan(entity.position(), (double) primaryPositionActivationDistance)) {
+                    GlobalPos globalPos2 = list.get(world.getRandom().nextInt(list.size()));
+                    if (globalPos2 == null || world.dimension() != globalPos2.dimension() || !globalPos.pos().closerThan(entity.blockPosition(), (double) primaryPositionActivationDistance)) {
                         return false;
                     }
                     if (time > mutableLong.getValue()) {

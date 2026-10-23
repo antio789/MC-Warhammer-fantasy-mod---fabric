@@ -1,128 +1,119 @@
-/*
- * Decompiled with CFR 0.2.2 (FabricMC 7c48b8c4).
- */
 package warhammermod.Entities.Living.AImanager.Data.DwarfTasks;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.entity.EntityStatuses;
-import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.MemoryModuleState;
-import net.minecraft.entity.ai.brain.MemoryModuleType;
-import net.minecraft.entity.ai.brain.task.MultiTickTask;
-import net.minecraft.entity.ai.brain.task.TargetUtil;
-import net.minecraft.entity.ai.pathing.Path;
-import net.minecraft.entity.passive.PassiveEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.network.DebugInfoSender;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.GlobalPos;
-import net.minecraft.world.poi.PointOfInterestType;
-import net.minecraft.world.poi.PointOfInterestTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.AgeableMob;
+import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.entity.ai.village.poi.PoiTypes;
+import net.minecraft.world.level.pathfinder.Path;
 import warhammermod.Entities.Living.DwarfEntity;
 import warhammermod.utils.Registry.Entityinit;
 
 import java.util.Optional;
 
-public class VillagerBreedTaskDwarf
-extends MultiTickTask<DwarfEntity> {
+public class VillagerBreedTaskDwarf extends Behavior<DwarfEntity> {
     private long breedEndTime;
 
     public VillagerBreedTaskDwarf() {
-        super(ImmutableMap.of(MemoryModuleType.BREED_TARGET, MemoryModuleState.VALUE_PRESENT, MemoryModuleType.VISIBLE_MOBS, MemoryModuleState.VALUE_PRESENT), 350, 350);
+        super(ImmutableMap.of(MemoryModuleType.BREED_TARGET, MemoryStatus.VALUE_PRESENT, MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES, MemoryStatus.VALUE_PRESENT), 350, 350);
     }
 
     @Override
-    protected boolean shouldRun(ServerWorld serverWorld, DwarfEntity dwarfEntity) {
+    protected boolean checkExtraStartConditions(ServerLevel serverWorld, DwarfEntity dwarfEntity) {
         return this.isReadyToBreed(dwarfEntity);
     }
 
     @Override
-    protected boolean shouldKeepRunning(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
+    protected boolean canStillUse(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
         return l <= this.breedEndTime && this.isReadyToBreed(dwarfEntity);
     }
 
     @Override
-    protected void run(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
-        PassiveEntity passiveEntity = dwarfEntity.getBrain().getOptionalRegisteredMemory(MemoryModuleType.BREED_TARGET).get();
-        TargetUtil.lookAtAndWalkTowardsEachOther(dwarfEntity, passiveEntity, 0.5f, 2);
-        serverWorld.sendEntityStatus(passiveEntity, EntityStatuses.ADD_BREEDING_PARTICLES);
-        serverWorld.sendEntityStatus(dwarfEntity, EntityStatuses.ADD_BREEDING_PARTICLES);
+    protected void start(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
+        AgeableMob passiveEntity = dwarfEntity.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
+        BehaviorUtils.lockGazeAndWalkToEachOther(dwarfEntity, passiveEntity, 0.5f, 2);
+        serverWorld.broadcastEntityEvent(passiveEntity, (byte) 18);
+        serverWorld.broadcastEntityEvent(dwarfEntity, (byte) 18);
         int i = 275 + dwarfEntity.getRandom().nextInt(50);
-        this.breedEndTime = l + (long)i;
+        this.breedEndTime = l + (long) i;
     }
 
     @Override
-    protected void keepRunning(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
-        DwarfEntity dwarfEntity2 = (DwarfEntity)dwarfEntity.getBrain().getOptionalRegisteredMemory(MemoryModuleType.BREED_TARGET).get();
-        if (dwarfEntity.squaredDistanceTo(dwarfEntity2) > 5.0) {
+    protected void tick(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
+        DwarfEntity dwarfEntity2 = (DwarfEntity) dwarfEntity.getBrain().getMemory(MemoryModuleType.BREED_TARGET).get();
+        if (dwarfEntity.distanceToSqr(dwarfEntity2) > 5.0) {
             return;
         }
-        TargetUtil.lookAtAndWalkTowardsEachOther(dwarfEntity, dwarfEntity2, 0.5f, 2);
+        BehaviorUtils.lockGazeAndWalkToEachOther(dwarfEntity, dwarfEntity2, 0.5f, 2);
         if (l >= this.breedEndTime) {
             dwarfEntity.eatForBreeding();
             dwarfEntity2.eatForBreeding();
             this.goHome(serverWorld, dwarfEntity, dwarfEntity2);
         } else if (dwarfEntity.getRandom().nextInt(35) == 0) {
-            serverWorld.sendEntityStatus(dwarfEntity2, EntityStatuses.ADD_VILLAGER_HEART_PARTICLES);
-            serverWorld.sendEntityStatus(dwarfEntity, EntityStatuses.ADD_VILLAGER_HEART_PARTICLES);
+            serverWorld.broadcastEntityEvent(dwarfEntity2, (byte) 12);
+            serverWorld.broadcastEntityEvent(dwarfEntity, (byte) 12);
         }
     }
 
-    private void goHome(ServerWorld world, DwarfEntity first, DwarfEntity second) {
+    private void goHome(ServerLevel world, DwarfEntity first, DwarfEntity second) {
         Optional<BlockPos> optional = this.getReachableHome(world, first);
         if (optional.isEmpty()) {
-            world.sendEntityStatus(second, EntityStatuses.ADD_VILLAGER_ANGRY_PARTICLES);
-            world.sendEntityStatus(first, EntityStatuses.ADD_VILLAGER_ANGRY_PARTICLES);
+            world.broadcastEntityEvent(second, (byte) 13);
+            world.broadcastEntityEvent(first, (byte) 13);
         } else {
             Optional<DwarfEntity> optional2 = this.createChild(world, first, second);
             if (optional2.isPresent()) {
                 this.setChildHome(world, optional2.get(), optional.get());
             } else {
-                world.getPointOfInterestStorage().releaseTicket(optional.get());
-                DebugInfoSender.sendPointOfInterest(world, optional.get());
+                world.getPoiManager().release(optional.get());
             }
         }
     }
 
     @Override
-    protected void finishRunning(ServerWorld serverWorld, DwarfEntity dwarfEntity, long l) {
-        dwarfEntity.getBrain().forget(MemoryModuleType.BREED_TARGET);
+    protected void stop(ServerLevel serverWorld, DwarfEntity dwarfEntity, long l) {
+        dwarfEntity.getBrain().eraseMemory(MemoryModuleType.BREED_TARGET);
     }
 
     private boolean isReadyToBreed(DwarfEntity villager) {
-        Brain<DwarfEntity> brain = villager.getBrain();
-        Optional<PassiveEntity> optional = brain.getOptionalRegisteredMemory(MemoryModuleType.BREED_TARGET).filter(passiveEntity -> passiveEntity.getType() == Entityinit.DWARF);
-        return optional.filter(passiveEntity -> TargetUtil.canSee(brain, MemoryModuleType.BREED_TARGET, Entityinit.DWARF) && villager.isReadyToBreed() && passiveEntity.isReadyToBreed()).isPresent();
+        var brain = villager.getBrain();
+        Optional<AgeableMob> optional = brain.getMemory(MemoryModuleType.BREED_TARGET).filter(passiveEntity -> passiveEntity.getType() == Entityinit.DWARF);
+        return optional.filter(passiveEntity -> BehaviorUtils.targetIsValid(brain, MemoryModuleType.BREED_TARGET, Entityinit.DWARF) && villager.isReadyToBreed() && passiveEntity instanceof DwarfEntity dwarf && dwarf.isReadyToBreed()).isPresent();
     }
 
-    private Optional<BlockPos> getReachableHome(ServerWorld world, DwarfEntity villager) {
-        return world.getPointOfInterestStorage().getPosition(poiType -> poiType.matchesKey(PointOfInterestTypes.HOME), (poiType, pos) -> this.canReachHome(villager, (BlockPos)pos, (RegistryEntry<PointOfInterestType>)poiType), villager.getBlockPos(), 48);
+    private Optional<BlockPos> getReachableHome(ServerLevel world, DwarfEntity villager) {
+        return world.getPoiManager().take(poiType -> poiType.is(PoiTypes.HOME), (holder, pos) -> this.canReachHome(villager, pos, holder), villager.blockPosition(), 48);
     }
 
-    private boolean canReachHome(DwarfEntity villager, BlockPos pos, RegistryEntry<PointOfInterestType> poiType) {
-        Path path = villager.getNavigation().findPathTo(pos, poiType.value().searchDistance());
-        return path != null && path.reachesTarget();
+    private boolean canReachHome(DwarfEntity villager, BlockPos pos, Holder<PoiType> poiType) {
+        Path path = villager.getNavigation().createPath(pos, poiType.value().validRange());
+        return path != null && path.canReach();
     }
 
-    private Optional<DwarfEntity> createChild(ServerWorld world, DwarfEntity parent, DwarfEntity partner) {
+    private Optional<DwarfEntity> createChild(ServerLevel world, DwarfEntity parent, DwarfEntity partner) {
         DwarfEntity dwarfEntity = parent.createChild(world, partner);
         if (dwarfEntity == null) {
             return Optional.empty();
         }
-        parent.setBreedingAge(6000);
-        partner.setBreedingAge(6000);
-        dwarfEntity.setBreedingAge(-24000);
-        dwarfEntity.refreshPositionAndAngles(parent.getX(), parent.getY(), parent.getZ(), 0.0f, 0.0f);
-        world.spawnEntityAndPassengers(dwarfEntity);
-        world.sendEntityStatus(dwarfEntity, EntityStatuses.ADD_VILLAGER_HEART_PARTICLES);
+        parent.setAge(6000);
+        partner.setAge(6000);
+        dwarfEntity.setAge(-24000);
+        dwarfEntity.moveTo(parent.getX(), parent.getY(), parent.getZ());
+        dwarfEntity.setYRot(0.0f);
+        world.addFreshEntityWithPassengers(dwarfEntity);
+        world.broadcastEntityEvent(dwarfEntity, (byte) 12);
         return Optional.of(dwarfEntity);
     }
 
-    private void setChildHome(ServerWorld world, DwarfEntity child, BlockPos pos) {
-        GlobalPos globalPos = GlobalPos.create(world.getRegistryKey(), pos);
-        child.getBrain().remember(MemoryModuleType.HOME, globalPos);
+    private void setChildHome(ServerLevel world, DwarfEntity child, BlockPos pos) {
+        GlobalPos globalPos = GlobalPos.of(world.dimension(), pos);
+        child.getBrain().setMemory(MemoryModuleType.HOME, globalPos);
     }
-
 }
-
