@@ -400,7 +400,7 @@ public class SkavenEntity extends PatrollingMonster implements SkavenRangedUser 
                 livingentity = (LivingEntity) source.getEntity();
             }
 
-            if (livingentity != null && this.level().getDifficulty() == Difficulty.HARD && (double) this.random.nextFloat() < reinforcementchance.get(getSkavenTypePosition()) / 2 && world.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.SPAWN_MONSTERS)) {
+            if (livingentity != null && this.level().getDifficulty() == Difficulty.HARD && (double) this.random.nextFloat() < reinforcementchance.get(getSkavenTypePosition()) / 2 && world.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.SPAWN_MOBS)) {
                 SkavenEntity skavenEntity = Entityinit.SKAVEN.create(world, EntitySpawnReason.REINFORCEMENT);
                 int i = Mth.floor(this.getX());
                 int j = Mth.floor(this.getY());

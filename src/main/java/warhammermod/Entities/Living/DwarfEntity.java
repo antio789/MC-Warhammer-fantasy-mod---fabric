@@ -849,12 +849,14 @@ public class DwarfEntity extends AbstractVillager {
             return;
         }
         MerchantOffers merchantOffers = this.getOffers();
-        for (int i = 0; i < 2 && merchantOffers.size() < factorys.length * 2; ++i) {
-            TradeFactory factory = factorys[this.random.nextInt(factorys.length)];
-            MerchantOffer offer = factory.create(this.random);
-            if (!merchantOffers.contains(offer)) {
-                merchantOffers.add(offer);
-            }
+        List<Integer> pool = new java.util.ArrayList<>();
+        for (int i = 0; i < factorys.length; ++i) {
+            pool.add(i);
+        }
+        int count = Math.min(2, pool.size());
+        for (int i = 0; i < count && !pool.isEmpty(); ++i) {
+            TradeFactory factory = factorys[pool.remove(this.random.nextInt(pool.size()))];
+            merchantOffers.add(factory.create(this.random));
         }
     }
 

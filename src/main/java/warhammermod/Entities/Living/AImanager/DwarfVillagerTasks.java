@@ -1,15 +1,15 @@
 package warhammermod.Entities.Living.AImanager;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.ai.behavior.AcquirePoi;
 import net.minecraft.world.entity.ai.behavior.BehaviorControl;
-import net.minecraft.world.entity.ai.behavior.BecomePassiveIfMemoryPresent;
 import net.minecraft.world.entity.ai.behavior.DoNothing;
-import net.minecraft.world.entity.ai.behavior.EraseMemoryIf;
 import net.minecraft.world.entity.ai.behavior.GoToWantedItem;
 import net.minecraft.world.entity.ai.behavior.InteractWith;
 import net.minecraft.world.entity.ai.behavior.InteractWithDoor;
@@ -18,12 +18,16 @@ import net.minecraft.world.entity.ai.behavior.LookAtTargetSink;
 import net.minecraft.world.entity.ai.behavior.MoveToTargetSink;
 import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
+import net.minecraft.world.entity.ai.behavior.ReactToBell;
+import net.minecraft.world.entity.ai.behavior.SetRaidStatus;
 import net.minecraft.world.entity.ai.behavior.SetLookAndInteract;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom;
+import net.minecraft.world.entity.ai.behavior.SleepInBed;
+import net.minecraft.world.entity.ai.behavior.ValidateNearbyPoi;
+import net.minecraft.world.entity.ai.behavior.SetClosestHomeAsWalkTarget;
 import net.minecraft.world.entity.ai.behavior.StrollAroundPoi;
 import net.minecraft.world.entity.ai.behavior.Swim;
 import net.minecraft.world.entity.ai.behavior.UpdateActivityFromSchedule;
-import net.minecraft.world.entity.ai.behavior.VillagerCalmDown;
 import net.minecraft.world.entity.ai.behavior.WakeUp;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.village.poi.PoiTypes;
@@ -63,9 +67,10 @@ public class DwarfVillagerTasks {
                 Pair.of(0, new LookAtTargetSink(45, 90)),
                 Pair.of(0, new PanicTaskDwarf()),
                 Pair.of(0, WakeUp.create()),
-                Pair.of(0, VillagerCalmDown.create()),
-                Pair.of(0, BecomePassiveIfMemoryPresent.create(MemoryModuleType.HURT_BY, 40)),
-                Pair.of(0, EraseMemoryIf.create((DwarfEntity entity) -> !PanicTaskDwarf.isHostileNearby(entity), MemoryModuleType.NEAREST_HOSTILE)),
+                Pair.of(0, ReactToBell.create()),
+                Pair.of(0, SetRaidStatus.create()),
+                Pair.of(0, ValidateNearbyPoi.create(profession.heldWorkstation(), MemoryModuleType.JOB_SITE)),
+                Pair.of(0, ValidateNearbyPoi.create(profession.acquirableWorkstation(), MemoryModuleType.POTENTIAL_JOB_SITE)),
                 Pair.of(1, new MoveToTargetSink()),
                 Pair.of(2, WorkStationCompetitionTaskDwarf.create()),
                 Pair.of(3, new FollowCustomerTaskDwarf(speed)),
@@ -110,8 +115,11 @@ public class DwarfVillagerTasks {
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super DwarfEntity>>> createRestTasks(float speed) {
         return ImmutableList.of(
                 Pair.of(2, VillagerWalkTowardsTaskDwarf.create(MemoryModuleType.HOME, speed, 1, 150, 1200)),
-                Pair.of(3, VillagerWalkTowardsTaskDwarf.create(MemoryModuleType.HOME, speed, 1, 150, 1200)),
-                Pair.of(5, new RunOne<>(ImmutableList.of(
+                Pair.of(3, ValidateNearbyPoi.create(poiType -> poiType.is(PoiTypes.HOME), MemoryModuleType.HOME)),
+                Pair.of(3, new SleepInBed()),
+                Pair.of(5, new RunOne<>(ImmutableMap.of(MemoryModuleType.HOME, MemoryStatus.VALUE_ABSENT), ImmutableList.of(
+                        Pair.of(SetClosestHomeAsWalkTarget.create(speed), 1),
+                        Pair.of(InsideBrownianWalk.create(speed), 4),
                         Pair.of(GoToPointOfInterestTaskDwarf.create(speed, 4), 2),
                         Pair.of(new DoNothing(20, 40), 2)))),
                 createBusyFollowTask(),

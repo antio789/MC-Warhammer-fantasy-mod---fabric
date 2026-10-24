@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.behavior.MeleeAttack;
 import net.minecraft.world.entity.ai.behavior.RunOne;
 import net.minecraft.world.entity.ai.behavior.SetEntityLookTarget;
 import net.minecraft.world.entity.ai.behavior.SetWalkTargetAwayFrom;
+import net.minecraft.world.entity.ai.behavior.SpearApproach;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.Sensor;
 import net.minecraft.world.entity.player.Player;
@@ -32,7 +33,7 @@ public class DwarfCombattasks {
 
     public static ImmutableList<Pair<Integer, ? extends BehaviorControl<? super DwarfEntity>>> createPanicTasks(float speed) {
         float f = speed * 1.2f;
-        return ImmutableList.of(Pair.of(0, StopPanickingTaskDwarf.create()), Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_HOSTILE, f, 6, false)),
+        return ImmutableList.of(Pair.of(0, StopPanickingTaskDwarf.create()), Pair.of(1, new SpearApproach(f, 25.0f)), Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.NEAREST_HOSTILE, f, 6, false)),
                 Pair.of(1, SetWalkTargetAwayFrom.entity(MemoryModuleType.HURT_BY_ENTITY, f, 6, false)),
                 Pair.of(1, MeleeAttack.create(20)),
                 Pair.of(3, GoToPointOfInterestTaskDwarf.create(f, 2)),
