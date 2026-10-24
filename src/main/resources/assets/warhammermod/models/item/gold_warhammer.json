@@ -1,6 +1,6 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "warhammermod:items/gold_warhammer"
+    "layer0": "warhammermod:item/gold_warhammer"
   }
 }

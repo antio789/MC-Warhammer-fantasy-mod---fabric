@@ -1,11 +1,6 @@
 {
-  "parent": "item/shield",
-  "overrides": [
-    {
-      "predicate": {
-        "blocking": 1
-      },
-      "model": "item/shield_blocking"
-    }
-  ]
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "warhammermod:item/shields/empire_shield"
+  }
 }

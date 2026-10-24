@@ -1,0 +1,18 @@
+{
+  "structures": [
+    {
+      "structure": "warhammermod:dwarf_village",
+      "weight": 1
+    },
+    {
+      "structure": "warhammermod:dwarf_village_underground",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 18,
+    "separation": 7,
+    "salt": 1546206481
+  }
+}
