@@ -8,6 +8,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import warhammermod.Entities.Living.Renders.DwarfRenderer;
+import warhammermod.Entities.Projectile.Renders.ProjectileCubeRenderer;
+import warhammermod.Entities.Projectile.Renders.ProjectileModel;
 import warhammermod.Entities.Living.Renders.Models.SkavenModel;
 import warhammermod.Entities.Living.Renders.PegasusRenderer;
 import warhammermod.Entities.Living.Renders.SkavenRenderer;
@@ -16,14 +18,19 @@ import warhammermod.utils.Registry.Entityinit;
 @Environment(EnvType.CLIENT)
 public class Clientside implements ClientModInitializer {
     public static final ModelLayerLocation Skaven = new ModelLayerLocation(reference.location("skaven"), "main");
+    public static final ModelLayerLocation Bullet = new ModelLayerLocation(reference.location("bullet"), "main");
 
     @Override
     public void onInitializeClient() {
         ModelLayerRegistry.registerModelLayer(Skaven, SkavenModel::createBodyLayer);
+        ModelLayerRegistry.registerModelLayer(Bullet, ProjectileModel::createLayer);
 
         EntityRendererRegistry.register(Entityinit.STONEENTITY, ThrownItemRenderer::new);
         EntityRendererRegistry.register(Entityinit.Flame, ThrownItemRenderer::new);
         EntityRendererRegistry.register(Entityinit.Grenade, ThrownItemRenderer::new);
+        EntityRendererRegistry.register(Entityinit.Bullet, ProjectileCubeRenderer::new);
+        EntityRendererRegistry.register(Entityinit.WarpBullet, ProjectileCubeRenderer::new);
+        EntityRendererRegistry.register(Entityinit.Shotentity, ProjectileCubeRenderer::new);
         EntityRendererRegistry.register(Entityinit.SKAVEN, SkavenRenderer::new);
         EntityRendererRegistry.register(Entityinit.Pegasus, PegasusRenderer::new);
         EntityRendererRegistry.register(Entityinit.DWARF, DwarfRenderer::new);
