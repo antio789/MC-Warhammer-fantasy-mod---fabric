@@ -16,7 +16,7 @@
       "warhammermod.mainInit"
     ],
     "client": [
-      "warhammermod.utils.Clientside"
+      "warhammermod.Client.Clientside"
     ]
   },
   "mixins": [

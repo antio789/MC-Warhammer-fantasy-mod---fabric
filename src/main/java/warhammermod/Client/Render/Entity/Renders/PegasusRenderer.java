@@ -1,4 +1,4 @@
-package warhammermod.Entities.Living.Renders;
+package warhammermod.Client.Render.Entity.Renders;
 
 import net.minecraft.client.model.animal.equine.HorseModel;
 import net.minecraft.client.renderer.entity.AbstractHorseRenderer;

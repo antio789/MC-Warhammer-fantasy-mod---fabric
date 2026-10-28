@@ -1,4 +1,4 @@
-package warhammermod.Entities.Living.Renders.Models;
+package warhammermod.Client.Render.Entity.Renders.Models;
 
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
@@ -10,7 +10,7 @@ import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.util.Mth;
 
-public class SkavenModel extends HumanoidModel<warhammermod.Entities.Living.Renders.SkavenRenderer.SkavenRenderState> {
+public class SkavenModel extends HumanoidModel<warhammermod.Client.Render.Entity.Renders.SkavenRenderer.SkavenRenderState> {
     public ModelPart tail1;
     public ModelPart tail2;
     public ModelPart tailend;
@@ -62,7 +62,7 @@ public class SkavenModel extends HumanoidModel<warhammermod.Entities.Living.Rend
     }
 
     @Override
-    public void setupAnim(warhammermod.Entities.Living.Renders.SkavenRenderer.SkavenRenderState state) {
+    public void setupAnim(warhammermod.Client.Render.Entity.Renders.SkavenRenderer.SkavenRenderState state) {
         super.setupAnim(state);
         float limbSwing = state.walkAnimationPos;
         float limbSwingAmount = state.walkAnimationSpeed;
