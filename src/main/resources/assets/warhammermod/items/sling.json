@@ -1,6 +1,35 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "warhammermod:item/sling"
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "warhammermod:item/sling"
+    },
+    "on_true": {
+      "type": "minecraft:range_dispatch",
+      "property": "minecraft:use_duration",
+      "scale": 0.05,
+      "entries": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "warhammermod:item/sling_pulling_1"
+          },
+          "threshold": 0.65
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "warhammermod:item/sling_pulling_2"
+          },
+          "threshold": 0.9
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "warhammermod:item/sling_pulling_0"
+      }
+    },
+    "property": "minecraft:using_item"
   }
 }
