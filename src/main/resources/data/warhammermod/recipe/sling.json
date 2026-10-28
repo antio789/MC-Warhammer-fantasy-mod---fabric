@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern": [
+    "S S",
+    "S S",
+    " L "
+  ],
+
+  "key": {
+    "S": "minecraft:string",
+    "L": "minecraft:leather"
+
+  },
+
+  "result":
+  {
+    "id": "warhammermod:sling",
+    "count": 1
+  },
+  "category":"equipment"
+}

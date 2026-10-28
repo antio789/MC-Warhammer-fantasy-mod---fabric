@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "III",
+    "BSG",
+    " I "
+  ],
+
+  "key":
+  {
+    "I": "minecraft:iron_ingot",
+    "S":
+    "minecraft:shield",
+    "B":"minecraft:lapis_lazuli",
+    "G":"minecraft:gold_ingot"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:dwarf_shield",
+    "count": 1
+  },
+  "category":"equipment"
+}

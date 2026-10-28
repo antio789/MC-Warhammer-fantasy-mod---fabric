@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    " I ",
+    "IGI",
+    " I "
+  ],
+
+  "key":
+  {
+    "I":
+    "minecraft:iron_ingot",
+    "G":
+    "minecraft:tnt"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:grenade",
+    "count": 5
+  },
+  "category":"equipment"
+}

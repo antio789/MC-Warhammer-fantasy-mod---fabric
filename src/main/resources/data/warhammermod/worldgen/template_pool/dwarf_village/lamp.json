@@ -1,0 +1,41 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/lamps/lamp1",
+        "processors": "warhammermod:stonify",
+        "projection": "rigid"
+      },
+      "weight": 5
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/lamps/lamp1gold",
+        "processors": "warhammermod:stonify",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/lamps/lamp2",
+        "processors": "warhammermod:stonify",
+        "projection": "rigid"
+      },
+      "weight": 4
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/lamps/lamp3",
+        "processors": "warhammermod:stonify",
+        "projection": "rigid"
+      },
+      "weight": 7
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

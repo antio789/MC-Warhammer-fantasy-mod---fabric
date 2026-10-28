@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "GGG",
+    "BSW",
+    " G "
+  ],
+
+  "key":
+  {
+    "G": "minecraft:gold_ingot",
+    "S":
+    "minecraft:shield",
+    "W":"minecraft:white_dye",
+    "B": "minecraft:light_blue_dye"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:high_elf_shield",
+    "count": 1
+  },
+  "category":"equipment"
+}

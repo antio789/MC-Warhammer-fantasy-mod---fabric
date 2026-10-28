@@ -1,0 +1,10 @@
+// 1.21	2024-09-04T18:36:14.026191594	Warhammer Universe Mod/Tags for minecraft:item
+5e41d1a0c06570196a24c520ff1b154ec29f9284 data/minecraft/tags/item/enchantable/durability.json
+d3475bbacf73fec6c961e7fb28a578e08b846382 data/minecraft/tags/item/head_armor.json
+8fbd4257feb10a0ba80e3529ae066f15d847f0fd data/minecraft/tags/item/pickaxes.json
+e8f35452ace8e3f02b23bb548dc72f4df17226f5 data/minecraft/tags/item/leg_armor.json
+4c4de9329d919f440c999c93902391fde3a84219 data/minecraft/tags/item/foot_armor.json
+873b8ba7315ef9e0ebe8e98ff4f73f327f410887 data/minecraft/tags/item/enchantable/bow.json
+0079a79ff5e2ea82f515aaa8062dee15222a2532 data/minecraft/tags/item/chest_armor.json
+cd7b56ddb92ac656d0d4af0ba70412374e2710be data/warhammermod/tags/item/range.json
+0d5948d9f51da0a3dc5a5f6cb8938d0b54ea2a4a data/minecraft/tags/item/swords.json

@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    " WW",
+    " SW",
+    "S  "
+  ],
+  "key":
+  {
+    "W": "minecraft:cobblestone",
+    "S":
+    "minecraft:stick"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:stone_halberd",
+    "count": 1
+  },
+  "category":"equipment"
+}

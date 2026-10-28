@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "III",
+    " SI",
+    " S "
+  ],
+
+  "key":
+  {
+    "I": "minecraft:diamond",
+    "S":
+    "minecraft:stick"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:diamond_warhammer",
+    "count": 1
+  },
+  "category":"equipment"
+}

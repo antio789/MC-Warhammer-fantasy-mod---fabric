@@ -1,6 +1,6 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "warhammermod:items/netherite_dagger"
+    "layer0": "warhammermod:item/netherite_dagger"
   }
 }
