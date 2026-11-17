@@ -1,6 +1,6 @@
 {
-  "parent": "minecraft:item/generated",
+  "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "warhammermod:item/grenade_launcher"
+    "layer0": "warhammermod:item/grenadeln"
   }
 }
