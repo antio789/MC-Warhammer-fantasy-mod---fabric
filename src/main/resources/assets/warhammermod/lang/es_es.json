@@ -59,5 +59,6 @@
   "item.warhammermod.dwarf_egg": "Dwarf Spawn Egg",
   "entity.warhammermod.skaven": "Skaven",
   "entity.warhammermod.pegasus": "Pegasus",
-  "entity.warhammermod.dwarf": "Dwarf"
+  "entity.warhammermod.dwarf": "Dwarf",
+  "tag.item.warhammermod.no_sweeping_weapon": "Armas sin barrido"
 }
