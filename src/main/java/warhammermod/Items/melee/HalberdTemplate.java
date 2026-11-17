@@ -1,23 +1,52 @@
 package warhammermod.Items.melee;
 
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.AttackRange;
+import net.minecraft.world.item.component.PiercingWeapon;
+import net.minecraft.world.item.component.SwingAnimation;
+import net.minecraft.world.item.SwingAnimationType;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
+import warhammermod.utils.ModEnchantmentHelper;
+
+import java.util.Optional;
 
 public class HalberdTemplate extends Item {
+    /**
+     * Reach of the charged power thrust, matches the extended melee attack range
+     * (vanilla spear uses 4.5 min / 6.5 max).
+     */
+    private static final float THRUST_RANGE = 6.5F;
+    private static final float THRUST_CHARGE_TICKS = 20.0F;
+
     protected final float attackDamage;
 
     public HalberdTemplate(ToolMaterial material, Item.Properties properties, float damage, float attackspeed) {
-        super(material.applySwordProperties(properties, damage, attackspeed).attributes(HammerTemplate.createAttributes(damage, attackspeed)));
+        super(material.applySwordProperties(properties, damage, attackspeed)
+                .attributes(HammerTemplate.createAttributes(damage, attackspeed))
+                // spear-style melee: extended reach, thrusting swing, normal attacks
+                // pierce through multiple entities in a line (26.2 components)
+                .component(DataComponents.ATTACK_RANGE, new AttackRange(2.0F, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F))
+                .component(DataComponents.PIERCING_WEAPON, new PiercingWeapon(true, true,
+                        Optional.of(SoundEvents.SPEAR_ATTACK), Optional.of(SoundEvents.SPEAR_HIT)))
+                .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 12))
+                .component(DataComponents.MINIMUM_ATTACK_CHARGE, 1.0F));
         this.attackDamage = damage;
     }
 
@@ -35,22 +64,59 @@ public class HalberdTemplate extends Item {
         return InteractionResult.CONSUME;
     }
 
+    /**
+     * Charged power thrust: a direct line attack from the eyes along the look
+     * direction, piercing every entity in its path (replaces the 1.21.3
+     * HalberdEntity projectile with an equivalent direct implementation).
+     */
     @Override
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-        if (getUseDuration(stack, entity) - 20 >= timeLeft && entity instanceof Player player) {
+        if (getUseDuration(stack, entity) - THRUST_CHARGE_TICKS >= timeLeft && entity instanceof Player player) {
             float damage = getDamage() * 1.3F;
-            boolean hitsomething = false;
-            for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, entity.getBoundingBox().inflate(2.5D, 0.25D, 2.5D))) {
-                if (target != player && entity.distanceToSqr(target) < 9.0D) {
-                    target.hurt(entity.damageSources().playerAttack(player), damage);
-                    hitsomething = true;
+            int sharpness = ModEnchantmentHelper.getLevel(level, stack, Enchantments.SHARPNESS);
+            if (sharpness > 0) {
+                damage += sharpness * 0.5F + 0.5F;
+            }
+            int knockbackLevel = ModEnchantmentHelper.getLevel(level, stack, Enchantments.KNOCKBACK);
+
+            Vec3 origin = player.getEyePosition();
+            Vec3 look = player.getViewVector(1.0F);
+            double range = THRUST_RANGE;
+
+            // the thrust stops at walls
+            BlockHitResult blockHit = level.clip(new ClipContext(origin, origin.add(look.scale(range)),
+                    ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
+            if (blockHit.getType() != HitResult.Type.MISS) {
+                range = blockHit.getLocation().distanceTo(origin);
+            }
+            Vec3 end = origin.add(look.scale(range));
+
+            boolean hitSomething = false;
+            AABB searchBox = player.getBoundingBox().expandTowards(look.scale(range)).inflate(1.0D);
+            for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, searchBox,
+                    target -> target != player && target.isAlive() && !target.isSpectator())) {
+                if (target.getBoundingBox().clip(origin, end).isPresent()) {
+                    var damageSource = player.damageSources().playerAttack(player);
+                    target.hurt(damageSource, damage);
+                    if (knockbackLevel > 0) {
+                        double dx = player.getX() - target.getX();
+                        double dz = player.getZ() - target.getZ();
+                        target.knockback(knockbackLevel * 0.4D, dx, dz, damageSource, 0.4F);
+                    }
+                    hitSomething = true;
                 }
             }
-            if (hitsomething) {
-                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.PLAYER_ATTACK_SWEEP, player.getSoundSource(), 1.0F, 1.0F);
-                stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
-                player.getCooldowns().addCooldown(stack, 60);
+
+            if (hitSomething && level instanceof ServerLevel serverLevel) {
+                serverLevel.sendParticles(ParticleTypes.SWEEP_ATTACK,
+                        player.getX() + look.x * (range * 0.6F),
+                        player.getEyeY() - 0.4D,
+                        player.getZ() + look.z * (range * 0.6F), 4, 0.4D, 0.2D, 0.4D, 0.0D);
             }
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.PLAYER_ATTACK_KNOCKBACK, player.getSoundSource(), 1.0F, 1.0F);
+            stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
+            player.getCooldowns().addCooldown(stack, 60);
         }
         return true;
     }
