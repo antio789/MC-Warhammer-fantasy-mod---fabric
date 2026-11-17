@@ -1,9 +1,14 @@
 package warhammermod.Client.Render.Entity.Renders;
 
+import net.minecraft.client.model.animal.equine.EquineSaddleModel;
 import net.minecraft.client.model.animal.equine.HorseModel;
+import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.AbstractHorseRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.layers.HorseMarkingLayer;
+import net.minecraft.client.renderer.entity.layers.SimpleEquipmentLayer;
 import net.minecraft.client.renderer.entity.state.HorseRenderState;
+import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import warhammermod.Entities.Living.PegasusEntity;
 
@@ -16,7 +21,17 @@ public class PegasusRenderer extends AbstractHorseRenderer<PegasusEntity, HorseR
     private static final Identifier PEGASUS_GRAY = Identifier.fromNamespaceAndPath("warhammermod", "textures/entity/pegasus/pegasus_gray.png");
 
     public PegasusRenderer(EntityRendererProvider.Context context) {
-        super(context, new HorseModel(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.HORSE)), new HorseModel(context.bakeLayer(net.minecraft.client.model.geom.ModelLayers.HORSE_BABY)));
+        super(context, new HorseModel(context.bakeLayer(ModelLayers.HORSE)), new HorseModel(context.bakeLayer(ModelLayers.HORSE_BABY)));
+        // markings overlay (state.markings is set in extractRenderState)
+        this.addLayer(new HorseMarkingLayer(this));
+        // horse body armor (state.bodyArmorItem, filled by AbstractHorseRenderer.extractRenderState)
+        this.addLayer(new SimpleEquipmentLayer<>(this, context.getEquipmentRenderer(),
+                EquipmentClientInfo.LayerType.HORSE_BODY, state -> state.bodyArmorItem,
+                new HorseModel(context.bakeLayer(ModelLayers.HORSE_ARMOR)), null, 2));
+        // saddle (state.saddle)
+        this.addLayer(new SimpleEquipmentLayer<>(this, context.getEquipmentRenderer(),
+                EquipmentClientInfo.LayerType.HORSE_SADDLE, state -> state.saddle,
+                new EquineSaddleModel(context.bakeLayer(ModelLayers.HORSE_SADDLE)), null, 2));
     }
 
     @Override
