@@ -7,7 +7,8 @@
     "JezzailScopeMixin"
   ],
   "client": [
-    "client.JezzailFovMixin"
+    "client.JezzailFovMixin",
+    "client.GunReloadHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1
