@@ -6,6 +6,9 @@
   "mixins": [
     "JezzailScopeMixin"
   ],
+  "client": [
+    "client.JezzailFovMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

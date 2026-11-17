@@ -12,21 +12,26 @@ import warhammermod.Items.ItemsInit;
 /**
  * Makes the Warplock Jezzail aim like a vanilla spyglass: while using a
  * ready-to-fire (or creative) jezzail, isScoping() returns true, which
- * drives the spyglass FOV zoom, the scope overlay and the hidden held
- * item (26.2 equivalent of the 1.21.3 FOV_Capture mixin).
+ * drives the spyglass scope overlay and the hidden held item. The actual
+ * FOV factor is overridden by the client-side JezzailFovMixin.
  */
 @Mixin(Player.class)
 public class JezzailScopeMixin {
 
+    /** True while the player is aiming a ready-to-fire (or creative) warplock jezzail. */
+    public static boolean isJezzailScoping(Player player) {
+        if (!player.isUsingItem()) {
+            return false;
+        }
+        ItemStack stack = player.getUseItem();
+        return stack.getItem() == ItemsInit.Warplock_jezzail
+                && (((GunBase) stack.getItem()).isReadytoFire(stack) || player.isCreative());
+    }
+
     @Inject(method = "isScoping", at = @At("HEAD"), cancellable = true)
     private void warhammermod$jezzailScope(CallbackInfoReturnable<Boolean> cir) {
-        Player self = (Player) (Object) this;
-        if (self.isUsingItem()) {
-            ItemStack stack = self.getUseItem();
-            if (stack.getItem() == ItemsInit.Warplock_jezzail
-                    && (((GunBase) stack.getItem()).isReadytoFire(stack) || self.isCreative())) {
-                cir.setReturnValue(true);
-            }
+        if (isJezzailScoping((Player) (Object) this)) {
+            cir.setReturnValue(true);
         }
     }
 }
