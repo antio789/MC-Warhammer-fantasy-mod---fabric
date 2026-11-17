@@ -10,8 +10,8 @@ public record Ammocomponent(int ammocount, int startammo) {
     public static final Ammocomponent DEFAULT = new Ammocomponent(0, 0);
     public static final Codec<Ammocomponent> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                            ExtraCodecs.POSITIVE_INT.fieldOf("ammo").forGetter(Ammocomponent::ammocount),
-                            ExtraCodecs.POSITIVE_INT.fieldOf("magsize").forGetter(Ammocomponent::startammo)
+                            ExtraCodecs.intRange(0, Integer.MAX_VALUE).fieldOf("ammo").forGetter(Ammocomponent::ammocount),
+                            ExtraCodecs.intRange(0, Integer.MAX_VALUE).fieldOf("magsize").forGetter(Ammocomponent::startammo)
                     )
                     .apply(instance, Ammocomponent::new)
     );
