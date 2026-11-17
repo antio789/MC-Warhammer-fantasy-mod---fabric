@@ -5,7 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import warhammermod.mixin.JezzailScopeMixin;
+import warhammermod.utils.JezzailScopeHelper;
 
 /**
  * 26.2 equivalent of the 1.21.3 FOV_Capture mixin: the vanilla spyglass
@@ -21,7 +21,7 @@ public class JezzailFovMixin {
 
     @Inject(method = "getFieldOfViewModifier", at = @At("HEAD"), cancellable = true)
     private void warhammermod$jezzailFov(CallbackInfoReturnable<Float> cir) {
-        if (JezzailScopeMixin.isJezzailScoping((AbstractClientPlayer) (Object) this)) {
+        if (JezzailScopeHelper.isJezzailScoping((AbstractClientPlayer) (Object) this)) {
             cir.setReturnValue(JEZZAIL_ZOOM_FOV_MODIFIER);
         }
     }
