@@ -113,6 +113,10 @@ public class HalberdTemplate extends Item {
                     SoundEvents.PLAYER_ATTACK_KNOCKBACK, player.getSoundSource(), 1.0F, 1.0F);
             stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
             player.getCooldowns().addCooldown(stack, 60);
+            // trigger the vanilla STAB swing animation for the thrust release;
+            // on the server this broadcasts the swing so third-person observers
+            // (and the local player, via the self-swing path) play the stab
+            player.swing(InteractionHand.MAIN_HAND);
         }
         return true;
     }
