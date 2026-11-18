@@ -51,6 +51,15 @@ public final class HalberdThrustAnimation {
     }
 
     /**
+     * Attack-cycle value (1.0 -> 0.0 over the thrust) mirroring vanilla's
+     * attackAnim decay, so the vanilla SpearAnimations attack keyframes can
+     * drive the whole motion.
+     */
+    public static float attackProgress() {
+        return isThrusting() ? thrustTicks / (float) DURATION_TICKS : 0.0F;
+    }
+
+    /**
      * Signed amount to translate the item along its thrust axis.
      * Progress goes 0 -> 1 over the animation; the push eases out to
      * MAX_PUSH and back (sinusoidal out-and-return).
