@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -48,6 +49,8 @@ public class Clientside implements ClientModInitializer {
         registerModelLayer();
 
         ParticleProviderRegistry.getInstance().register(WHRegistry.WARP, warpparticle.InstantFactory::new);
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> HalberdThrustAnimation.tick());
     }
 
     public static Identifier location(String string) {

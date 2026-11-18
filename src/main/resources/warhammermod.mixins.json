@@ -8,7 +8,9 @@
   ],
   "client": [
     "client.JezzailFovMixin",
-    "client.GunReloadHudMixin"
+    "client.GunReloadHudMixin",
+    "client.HalberdThrustFirstPersonMixin",
+    "client.HalberdThrustThirdPersonMixin"
   ],
   "injectors": {
     "defaultRequire": 1
