@@ -13,7 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.PiercingWeapon;
 import net.minecraft.world.item.component.SwingAnimation;
 import net.minecraft.world.item.SwingAnimationType;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -24,8 +23,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import warhammermod.utils.ModEnchantmentHelper;
-
-import java.util.Optional;
 
 public class HalberdTemplate extends Item {
     /**
@@ -40,11 +37,10 @@ public class HalberdTemplate extends Item {
     public HalberdTemplate(ToolMaterial material, Item.Properties properties, float damage, float attackspeed) {
         super(material.applySwordProperties(properties, damage, attackspeed)
                 .attributes(HammerTemplate.createAttributes(damage, attackspeed))
-                // spear-style melee: extended reach, thrusting swing, normal attacks
-                // pierce through multiple entities in a line (26.2 components)
+                // extended reach for a polearm, but normal attacks stay a vanilla
+                // sword-style sweep; the line-piercing thrust is only the charged
+                // power attack (releaseUsing)
                 .component(DataComponents.ATTACK_RANGE, new AttackRange(2.0F, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F))
-                .component(DataComponents.PIERCING_WEAPON, new PiercingWeapon(true, true,
-                        Optional.of(SoundEvents.SPEAR_ATTACK), Optional.of(SoundEvents.SPEAR_HIT)))
                 .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 12))
                 .component(DataComponents.MINIMUM_ATTACK_CHARGE, 1.0F));
         this.attackDamage = damage;
