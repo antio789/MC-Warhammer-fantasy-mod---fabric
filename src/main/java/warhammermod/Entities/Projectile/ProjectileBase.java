@@ -105,7 +105,7 @@ public abstract class ProjectileBase extends AbstractArrow {
             damagesource = damageSources().arrow(this, this);
         } else {
             damagesource = damageSources().arrow(this, shooterentity);
-            if (shooterentity instanceof LivingEntity) {
+            if (shooterentity instanceof LivingEntity && !this.level().isClientSide()) {
                 ((LivingEntity) shooterentity).setLastHurtMob(hitentity);
             }
         }
@@ -128,16 +128,20 @@ public abstract class ProjectileBase extends AbstractArrow {
         }
         boolean isEnderman = hitentity.getType() == EntityTypes.ENDERMAN;
         int intFireticks = hitentity.getRemainingFireTicks();
-        if (this.isOnFire() && !isEnderman) {
+        boolean serverSide = !this.level().isClientSide();
+        if (serverSide && this.isOnFire() && !isEnderman) {
             hitentity.igniteForSeconds(5);
         }
 
-        boolean hurt = hitentity.hurtServer((ServerLevel) this.level(), damagesource, fldamage);
+        // hurtOrSimulate is the vanilla client-safe damage entry point: it calls
+        // hurtServer on the server and hurtClient on the client, so onHitEntity
+        // (which runs on both sides) must use it instead of a ServerLevel cast.
+        boolean hurt = hitentity.hurtOrSimulate(damagesource, fldamage);
         if (hurt) {
             if (isEnderman) {
                 return;
             }
-            if (hitentity instanceof LivingEntity livingentity) {
+            if (hitentity instanceof LivingEntity livingentity && serverSide) {
                 applyspecialeffect(livingentity);
                 if (this.knocklevel > 0) {
                     this.doKnockback(livingentity, damagesource);
@@ -151,7 +155,7 @@ public abstract class ProjectileBase extends AbstractArrow {
                     ((ServerPlayer) shooterentity).connection.send(new net.minecraft.network.protocol.game.ClientboundGameEventPacket(net.minecraft.network.protocol.game.ClientboundGameEventPacket.PLAY_ARROW_HIT_SOUND, 0.0F));
                 }
                 if (!livingentity.isAlive() && this.piercingKilledEntities != null) {
-                    this.piercingKilledEntities.add(shooterentity);
+                    this.piercingKilledEntities.add(livingentity);
                 }
             }
 
@@ -160,14 +164,15 @@ public abstract class ProjectileBase extends AbstractArrow {
                 discard();
             }
         } else {
-            hitentity.setRemainingFireTicks(intFireticks);
+            if (serverSide) {
+                hitentity.setRemainingFireTicks(intFireticks);
+            }
             this.deflect(ProjectileDeflection.REVERSE, hitentity, net.minecraft.world.entity.EntityReference.of(this.getOwner()), false);
             this.setDeltaMovement(this.getDeltaMovement().scale(0.2D));
-            if (!this.level().isClientSide() && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
+            if (serverSide && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
                 discard();
             }
         }
-        discard();
     }
 
     @Override
