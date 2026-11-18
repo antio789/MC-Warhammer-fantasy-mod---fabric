@@ -105,7 +105,7 @@ public abstract class ProjectileBase extends AbstractArrow {
             damagesource = damageSources().arrow(this, this);
         } else {
             damagesource = damageSources().arrow(this, shooterentity);
-            if (shooterentity instanceof LivingEntity && !this.level().isClientSide()) {
+            if (shooterentity instanceof LivingEntity) {
                 ((LivingEntity) shooterentity).setLastHurtMob(hitentity);
             }
         }
@@ -128,20 +128,20 @@ public abstract class ProjectileBase extends AbstractArrow {
         }
         boolean isEnderman = hitentity.getType() == EntityTypes.ENDERMAN;
         int intFireticks = hitentity.getRemainingFireTicks();
-        boolean serverSide = !this.level().isClientSide();
-        if (serverSide && this.isOnFire() && !isEnderman) {
+        if (this.isOnFire() && !isEnderman) {
             hitentity.igniteForSeconds(5);
         }
 
-        // hurtOrSimulate is the vanilla client-safe damage entry point: it calls
-        // hurtServer on the server and hurtClient on the client, so onHitEntity
-        // (which runs on both sides) must use it instead of a ServerLevel cast.
+        // hurtOrSimulate is the vanilla client-safe damage entry point: on the
+        // server it calls hurtServer (with the proper ServerLevel access) and on
+        // the client hurtClient, so onHitEntity - which runs on both sides like
+        // vanilla AbstractArrow.onHitEntity - can stay structurally identical.
         boolean hurt = hitentity.hurtOrSimulate(damagesource, fldamage);
         if (hurt) {
             if (isEnderman) {
                 return;
             }
-            if (hitentity instanceof LivingEntity livingentity && serverSide) {
+            if (hitentity instanceof LivingEntity livingentity) {
                 applyspecialeffect(livingentity);
                 if (this.knocklevel > 0) {
                     this.doKnockback(livingentity, damagesource);
@@ -164,12 +164,10 @@ public abstract class ProjectileBase extends AbstractArrow {
                 discard();
             }
         } else {
-            if (serverSide) {
-                hitentity.setRemainingFireTicks(intFireticks);
-            }
+            hitentity.setRemainingFireTicks(intFireticks);
             this.deflect(ProjectileDeflection.REVERSE, hitentity, net.minecraft.world.entity.EntityReference.of(this.getOwner()), false);
             this.setDeltaMovement(this.getDeltaMovement().scale(0.2D));
-            if (serverSide && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
+            if (this.level() instanceof ServerLevel && this.getDeltaMovement().lengthSqr() < 1.0E-7D) {
                 discard();
             }
         }
