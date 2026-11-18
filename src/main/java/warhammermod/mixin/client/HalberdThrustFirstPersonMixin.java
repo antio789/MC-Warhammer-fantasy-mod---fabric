@@ -22,7 +22,7 @@ import warhammermod.Items.melee.HalberdTemplate;
 @Mixin(ItemInHandRenderer.class)
 public class HalberdThrustFirstPersonMixin {
 
-    @Inject(method = "submitArmWithItem", at = @At("TAIL"))
+    @Inject(method = "submitArmWithItem", at = @At("HEAD"))
     private void warhammermod$halberdThrust(AbstractClientPlayer player, float partialTick, float partialTick2,
                                             InteractionHand hand, float f4, ItemStack stack, float equipProgress,
                                             PoseStack poseStack, SubmitNodeCollector collector, int light, CallbackInfo ci) {

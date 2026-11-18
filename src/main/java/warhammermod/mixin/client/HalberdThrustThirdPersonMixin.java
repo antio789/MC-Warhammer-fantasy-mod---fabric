@@ -23,7 +23,7 @@ import warhammermod.Items.melee.HalberdTemplate;
 @Mixin(ItemInHandLayer.class)
 public class HalberdThrustThirdPersonMixin {
 
-    @Inject(method = "submitArmWithItem", at = @At("TAIL"))
+    @Inject(method = "submitArmWithItem", at = @At("HEAD"))
     private void warhammermod$halberdThrust(ArmedEntityRenderState state, ItemStackRenderState itemRenderState,
                                             ItemStack stack, HumanoidArm arm, PoseStack poseStack,
                                             SubmitNodeCollector collector, int light, CallbackInfo ci) {
