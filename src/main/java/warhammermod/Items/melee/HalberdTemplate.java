@@ -113,9 +113,10 @@ public class HalberdTemplate extends Item {
                     SoundEvents.PLAYER_ATTACK_KNOCKBACK, player.getSoundSource(), 1.0F, 1.0F);
             stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
             player.getCooldowns().addCooldown(stack, 60);
-            // note: no player.swing() here - the thrust release animation is
-            // driven by HalberdThrustAnimation on the client (pure forward
-            // push), not the vanilla STAB swing (which carries a swing arc)
+            // reuse the normal spear thrust: a vanilla swing plays the STAB
+            // attack animation (SWING_ANIMATION component) first person and
+            // broadcasts it to third-person observers
+            player.swing(InteractionHand.MAIN_HAND);
         }
         return true;
     }
