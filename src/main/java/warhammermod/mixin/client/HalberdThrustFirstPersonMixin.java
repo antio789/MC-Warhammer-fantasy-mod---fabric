@@ -30,7 +30,7 @@ public class HalberdThrustFirstPersonMixin {
                 && stack.getItem() instanceof HalberdTemplate
                 && HalberdThrustAnimation.isThrusting()) {
             // vanilla's own spear attack push uses positive z along this axis
-            poseStack.translate(0.0F, 0.0F, HalberdThrustAnimation.pushAmount());
+            poseStack.translate(0.0F, 0.0F, -HalberdThrustAnimation.pushAmount());
         }
     }
 }
