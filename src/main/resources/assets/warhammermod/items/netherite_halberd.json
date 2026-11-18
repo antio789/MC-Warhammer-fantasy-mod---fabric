@@ -1,6 +1,43 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "warhammermod:item/netherite_halberd"
-  }
+    "type": "minecraft:condition",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "warhammermod:item/netherite_halberd"
+    },
+    "on_true": {
+      "type": "minecraft:range_dispatch",
+      "property": "minecraft:use_duration",
+      "scale": 0.05,
+      "entries": [
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "warhammermod:item/netherite_halberd_charging_1"
+          },
+          "threshold": 0.25
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "warhammermod:item/netherite_halberd_charging_2"
+          },
+          "threshold": 0.5
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "warhammermod:item/netherite_halberd_charging_3"
+          },
+          "threshold": 0.75
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:model",
+        "model": "warhammermod:item/netherite_halberd_charging_0"
+      }
+    },
+    "property": "minecraft:using_item"
+  },
+  "swap_animation_scale": 1.1
 }
