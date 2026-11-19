@@ -4,7 +4,8 @@
   "package": "warhammermod.mixin",
   "compatibilityLevel": "JAVA_25",
   "mixins": [
-    "JezzailScopeMixin"
+    "JezzailScopeMixin",
+    "HalberdSwingMixin"
   ],
   "client": [
     "client.JezzailFovMixin",

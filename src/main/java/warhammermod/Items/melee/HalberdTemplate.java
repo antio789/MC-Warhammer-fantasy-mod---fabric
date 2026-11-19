@@ -31,6 +31,8 @@ public class HalberdTemplate extends Item {
      */
     private static final float THRUST_RANGE = 6.5F;
     private static final float THRUST_CHARGE_TICKS = 20.0F;
+    /** Length of the release-thrust swing cycle in ticks (vanilla whack is 6). */
+    private static final int THRUST_SWING_TICKS = 12;
 
     protected final float attackDamage;
 
@@ -41,7 +43,6 @@ public class HalberdTemplate extends Item {
                 // sword-style sweep; the line-piercing thrust is only the charged
                 // power attack (releaseUsing)
                 .component(DataComponents.ATTACK_RANGE, new AttackRange(2.0F, 4.5F, 2.0F, 6.5F, 0.125F, 0.5F))
-                .component(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, 12))
                 .component(DataComponents.MINIMUM_ATTACK_CHARGE, 1.0F));
         this.attackDamage = damage;
     }
@@ -94,11 +95,9 @@ public class HalberdTemplate extends Item {
                 if (target.getBoundingBox().clip(origin, end).isPresent()) {
                     var damageSource = player.damageSources().playerAttack(player);
                     target.hurt(damageSource, damage);
-                    if (knockbackLevel > 0) {
-                        double dx = player.getX() - target.getX();
-                        double dz = player.getZ() - target.getZ();
-                        target.knockback(knockbackLevel * 0.4D, dx, dz, damageSource, 0.4F);
-                    }
+                    double dx = player.getX() - target.getX();
+                    double dz = player.getZ() - target.getZ();
+                    target.knockback(0.4D + knockbackLevel * 0.4D, dx, dz, damageSource, 0.4F);
                     hitSomething = true;
                 }
             }
@@ -113,9 +112,11 @@ public class HalberdTemplate extends Item {
                     SoundEvents.PLAYER_ATTACK_KNOCKBACK, player.getSoundSource(), 1.0F, 1.0F);
             stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
             player.getCooldowns().addCooldown(stack, 60);
-            // reuse the normal spear thrust: a vanilla swing plays the STAB
-            // attack animation (SWING_ANIMATION component) first person and
-            // broadcasts it to third-person observers
+            // mark just this swing as a STAB: every client reads the swing type
+            // live from the held stack's SWING_ANIMATION component, so the
+            // vanilla spear thrust animation plays first and third person;
+            // HalberdSwingMixin clears it again when the swing ends
+            stack.set(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, THRUST_SWING_TICKS));
             player.swing(InteractionHand.MAIN_HAND);
         }
         return true;
