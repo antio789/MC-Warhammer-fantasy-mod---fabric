@@ -6,6 +6,8 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -20,6 +22,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 import warhammermod.utils.ModEnchantmentHelper;
 import warhammermod.utils.Registry.WHRegistry;
 
@@ -114,11 +117,23 @@ public class HalberdTemplate extends Item {
             // flag this one swing as a thrust: HalberdThrustSwingMixin makes
             // ItemStack.getSwingAnimation() return STAB while the flag is set,
             // so the vanilla spear thrust animation plays first and third
-            // person; HalberdSwingMixin clears the flag when the swing ends
+            // person; inventoryTick clears the flag when the swing ends
             stack.set(WHRegistry.HALBERD_THRUST, true);
             player.swing(InteractionHand.MAIN_HAND);
         }
         return true;
+    }
+
+    /**
+     * Clears the thrust flag once no swing is running anymore (server side;
+     * the cleared component syncs to clients), so later normal attacks with
+     * the halberd whack again instead of stabbing.
+     */
+    @Override
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity owner, @Nullable EquipmentSlot slot) {
+        if (stack.has(WHRegistry.HALBERD_THRUST) && !(owner instanceof LivingEntity living && living.swinging)) {
+            stack.remove(WHRegistry.HALBERD_THRUST);
+        }
     }
 
     @Override
