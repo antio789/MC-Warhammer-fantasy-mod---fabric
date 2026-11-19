@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+
+  "ingredients": [
+    "minecraft:iron_nugget",
+    "minecraft:paper",
+    "minecraft:gunpowder",
+    "minecraft:iron_nugget",
+    "minecraft:iron_nugget",
+    "minecraft:iron_nugget",
+    "minecraft:iron_nugget"
+  ],
+
+  "result":
+  {
+    "id": "warhammermod:shotshell",
+    "count": 1
+  },
+  "category":"equipment"
+}

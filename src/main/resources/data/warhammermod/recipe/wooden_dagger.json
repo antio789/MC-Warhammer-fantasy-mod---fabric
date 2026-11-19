@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    "M",
+    "S"
+  ],
+  "key": {
+    "M": "minecraft:oak_planks",
+    "S": "minecraft:stick"
+  },
+  "result": {
+    "id": "warhammermod:wooden_dagger",
+    "count": 1
+  }
+}

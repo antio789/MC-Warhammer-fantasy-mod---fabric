@@ -1,14 +1,6 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "warhammermod:items/ghal_maraz"
-  },
-  "overrides": [
-    {
-      "predicate": {
-        "powerhit": 1
-      },
-      "model": "warhammermod:item/gunsecond/ghal_maraz"
-    }
-    ]
+    "layer0": "warhammermod:item/ghal_maraz"
+  }
 }

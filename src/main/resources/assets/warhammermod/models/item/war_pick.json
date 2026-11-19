@@ -1,6 +1,6 @@
 {
-  "parent": "item/handheld",
+  "parent": "minecraft:item/handheld",
   "textures": {
-    "layer0": "warhammermod:items/war_pick"
+    "layer0": "warhammermod:item/war_pick"
   }
 }

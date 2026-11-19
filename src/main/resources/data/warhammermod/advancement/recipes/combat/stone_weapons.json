@@ -1,0 +1,28 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_cobblestone": {
+      "conditions": {
+        "items": [
+          {
+            "items": "#minecraft:stone_tool_materials"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    }
+  },
+  "requirements": [
+    [
+      "has_cobblestone"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "warhammermod:stonehalberd",
+      "warhammermod:stoneham",
+      "warhammermod:stoneknif",
+      "warhammermod:stoneknife"
+    ]
+  }
+}

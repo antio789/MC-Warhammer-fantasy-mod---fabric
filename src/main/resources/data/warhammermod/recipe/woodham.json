@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern": [
+    "PPP",
+    " SP",
+    " S "
+  ],
+
+  "key": {
+    "P": "#minecraft:planks",
+    "S": "minecraft:stick"
+  },
+    "result": {
+      "id": "warhammermod:wooden_warhammer",
+      "count": 1
+    },
+  "category":"equipment"
+}

@@ -1,75 +1,44 @@
 package warhammermod.Items;
 
-import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.ProjectileWeaponItem;
 import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.level.Level;
-import warhammermod.Items.melee.ShieldTemplate;
-import warhammermod.utils.reference;
+import warhammermod.utils.ModEnchantmentHelper;
+import warhammermod.utils.Registry.WHRegistry;
 
 import java.util.Random;
+import java.util.function.Predicate;
 
-public class GunBase extends Item implements IReloadItem {
+public abstract class GunBase extends ProjectileWeaponItem implements IReloadItem {
     public int timetoreload;
     public int Magsize;
+
+    public Item getAmmoType() {
+        return AmmoType;
+    }
+
     private final Item AmmoType;
-    protected Random rand= new Random();
-    public boolean hasshield=false; //use player.getitemoffhand instead
+    protected final Random rand = new Random();
+    public boolean hasshield = false;
     public float width = 1.5F;
     public float height = 1.5F;
 
-    public GunBase(Properties properties, Item ammotype, int time, int magsize) {
-        super(properties.tab(reference.warhammer));
-        Magsize=magsize;
-        timetoreload=time;
-        AmmoType=ammotype;
-
-        FabricModelPredicateProviderRegistry.register(this,new ResourceLocation("reloading"),(stack, worldIn, entityIn, i) ->  {
-            CompoundTag ammocounter = stack.getTag();
-            if (entityIn != null && stack.getItem() instanceof GunBase && entityIn instanceof Player && !((Player) entityIn).isCreative() && entityIn.isUsingItem() && entityIn.getUseItem() == stack && (ammocounter == null || ammocounter.getInt("ammo") <= 0)) {
-                if (ammocounter!=null && !isCharged(stack) && (entityIn.getTicksUsingItem())>((GunBase) stack.getItem()).getTimetoreload()){
-                    return 0.0F;
-
-                }
-                else return 1.0F;
-            }
-            else return 0.0F;
-        });
-        FabricModelPredicateProviderRegistry.register(this,new ResourceLocation("reloaded"),(stack, worldIn, entityIn, i) ->  {
-            CompoundTag ammocounter = stack.getTag();
-            if (entityIn != null && stack.getItem() instanceof GunBase && entityIn instanceof Player && !((Player) entityIn).isCreative() && entityIn.isUsingItem() && entityIn.getUseItem() == stack && (ammocounter == null || ammocounter.getInt("ammo") <= 0)) {
-                if (ammocounter!=null && !isCharged(stack) && (entityIn.getTicksUsingItem())>((GunBase) stack.getItem()).getTimetoreload()){
-                    return 1.0F;
-
-                }
-                else return 2.0F;
-            }
-            else return 0.0F;
-        });
-
-        FabricModelPredicateProviderRegistry.register(this,new ResourceLocation("aimwithshield"),(stack, worldIn, entityIn,i) -> {
-            if (entityIn != null && stack.getItem() instanceof GunBase && entityIn instanceof Player && !(((Player) entityIn).isCreative()) && entityIn.isUsingItem() && entityIn.getUseItem() == stack && isCharged(stack) && ((GunBase)stack.getItem()).hasshield((Player) entityIn)){
-                return 1.0F;
-            }
-            else return 0.0F;
-
-        });
-    }
-
-    public boolean isReadytoFire(ItemStack stack){
-        return isCharged(stack);
+    public GunBase(Item.Properties properties, Item ammotype, int time, int magsize) {
+        super(properties.component(WHRegistry.AMMO, Ammocomponent.DEFAULT));
+        Magsize = magsize;
+        timetoreload = time;
+        AmmoType = ammotype;
     }
 
     public ItemStack findAmmo(Player player) {
@@ -92,87 +61,127 @@ public class GunBase extends Item implements IReloadItem {
         return stack.getItem().equals(AmmoType);
     }
 
-    public InteractionResultHolder<ItemStack> use(Level world, Player playerIn, InteractionHand hand) {
-        ItemStack stack = playerIn.getItemInHand(hand);
-        if(isCharged(stack) || playerIn.isCreative()|| !findAmmo(playerIn).isEmpty()){
-            playerIn.startUsingItem(hand);
-            return InteractionResultHolder.consume(stack);
+    @Override
+    public InteractionResult use(Level world, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (isCharged(stack) || player.isCreative() || !findAmmo(player).isEmpty()) {
+            player.startUsingItem(hand);
+            return InteractionResult.CONSUME;
         }
-        return InteractionResultHolder.fail(stack);
+        return InteractionResult.FAIL;
     }
 
     @Override
     public void onUseTick(Level world, LivingEntity player, ItemStack stack, int count) {
-        if (player instanceof Player){
-            if ((count == getUseDuration(stack) - timetoreload) && !isCharged(stack) && !((Player) player).isCreative() && !world.isClientSide()) {
-                world.playSound(null,player.blockPosition(), SoundEvents.FLINTANDSTEEL_USE,SoundSource.PLAYERS,1,1);
+        if (player instanceof Player) {
+            if ((count == getUseDuration(stack, player) - timetoreload) && !isCharged(stack) && !((Player) player).isCreative() && !world.isClientSide()) {
+                world.playSound(null, player.blockPosition(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 1, 1);
             }
         }
     }
 
-
-    public void releaseUsing(ItemStack stack, Level worldIn, LivingEntity entityLiving, int timeLeft) {
-        if (entityLiving instanceof Player) {
-            Player entityplayer = (Player) entityLiving;
-            CompoundTag tag = stack.getOrCreateTag();
-            if (isCharged(stack) || entityplayer.isCreative()) {
-                fire(entityplayer,worldIn,stack);
-                if(!entityplayer.isCreative())setCharge(stack,getCharge(stack,tag)-1,tag);
-            }
-            else if(timetoreload<=getUseDuration(stack)-timeLeft && !worldIn.isClientSide()) {
-                int ammoreserve = this.findAmmo(entityplayer).getCount();
-                int infinitylevel = EnchantmentHelper.getItemEnchantmentLevel(Enchantments.INFINITY_ARROWS, stack);
+    @Override
+    public boolean releaseUsing(ItemStack stack, Level world, LivingEntity entityLiving, int timeLeft) {
+        if (entityLiving instanceof Player player) {
+            if (isCharged(stack) || player.isCreative()) {
+                fire(player, world, stack);
+                if (!player.isCreative()) setAmmoused(stack, getCharge(stack) - 1);
+                else {
+                    stack.set(WHRegistry.AMMO, new Ammocomponent(getCharge(stack), getMagCount(stack) + 1));
+                    return true;
+                }
+            } else if (timetoreload <= getUseDuration(stack, entityLiving) - timeLeft) {
+                int ammoreserve = this.findAmmo(player).getCount();
+                int infinitylevel = ModEnchantmentHelper.getLevel(world, stack, Enchantments.INFINITY);
                 if (ammoreserve < Magsize) {
                     if (infinitylevel == 0) {
-                        this.findAmmo(entityplayer).shrink(ammoreserve);
+                        this.findAmmo(player).shrink(ammoreserve);
                     }
-                    setCharge(stack,ammoreserve,tag);
+                    setCharge(stack, ammoreserve);
                 } else {
                     if (infinitylevel == 0) {
-                        this.findAmmo(entityplayer).shrink(Magsize);
+                        this.findAmmo(player).shrink(Magsize);
                     }
-                    setCharge(stack,Magsize,tag);
+                    setCharge(stack, Magsize);
                 }
+                return true;
             }
         }
-
+        return false;
     }
 
-    public void inventoryTick(ItemStack p_77663_1_, Level p_77663_2_, Entity entity, int p_77663_4_, boolean p_77663_5_) {
-        if(entity instanceof Player)  setshield((Player) entity);
+    public boolean isReadytoFire(ItemStack stack) {
+        return isCharged(stack);
     }
 
-    public void fire(Player player, Level world, ItemStack stack){}
-
-    public static boolean isCharged(ItemStack stack) {
-        CompoundTag compoundnbt = stack.getTag();
-        return compoundnbt != null && compoundnbt.getInt("ammo")>0;
+    public void fire(Player player, Level world, ItemStack stack) {
     }
 
-    public static int getCharge(ItemStack stack, CompoundTag nbt) {
-        CompoundTag compoundnbt = stack.getTag();
-        if(compoundnbt == null){return 0;}
-        return compoundnbt.getInt("ammo");
+    public boolean isCharged(ItemStack stack) {
+        Ammocomponent ammocomponent = stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT);
+        return ammocomponent.ammocount() > 0;
     }
 
-    public static void setCharge(ItemStack stack, int ammo, CompoundTag nbt) {
-        CompoundTag compoundnbt = stack.getOrCreateTag();
-        compoundnbt.putInt("ammo", ammo);
+    public static int getCharge(ItemStack stack) {
+        return stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT).ammocount();
     }
 
-    public int getUseDuration(ItemStack stack) { return 72000; }
-
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return (isCharged(stack) && hasshield) ? UseAnim.BLOCK:UseAnim.BOW;
+    public static int getMagCount(ItemStack stack) {
+        return stack.getOrDefault(WHRegistry.AMMO, Ammocomponent.DEFAULT).startammo();
     }
 
-    public Boolean hasshield(Player player){
-        return player.getOffhandItem().getItem() instanceof ShieldTemplate;
+    public static void setCharge(ItemStack stack, int ammo) {
+        stack.set(WHRegistry.AMMO, new Ammocomponent(ammo, ammo));
     }
 
-    private void setshield(Player player){ hasshield = hasshield(player); }
+    public static void setAmmoused(ItemStack stack, int ammo) {
+        stack.set(WHRegistry.AMMO, new Ammocomponent(ammo, getMagCount(stack)));
+    }
 
-    public int getTimetoreload(){ return timetoreload; }
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
+        return 72000;
+    }
 
-    public int getEnchantmentValue() { return 1; }
+    public int getMaxUseTime() {
+        return 72000;
+    }
+
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.BOW;
+    }
+
+    public int getTimetoreload() {
+        return timetoreload;
+    }
+
+    public int getEnchantability() {
+        return 1;
+    }
+
+    @Override
+    protected void shootProjectile(LivingEntity shooter, net.minecraft.world.entity.projectile.Projectile projectile, int index, float speed, float divergence, float yaw, LivingEntity target) {
+    }
+
+    @Override
+    public Predicate<ItemStack> getAllSupportedProjectiles() {
+        return stack -> stack.getItem().equals(AmmoType);
+    }
+
+    @Override
+    public int getDefaultProjectileRange() {
+        return 15;
+    }
+
+    public void playparticles(ParticleOptions effect, Level world, Player player) {
+        if (world.isClientSide()) {
+            for (int k = 0; k < 30; ++k) {
+                double d2 = this.rand.nextGaussian() * 0.02D;
+                double d0 = this.rand.nextGaussian() * 0.02D;
+                double d1 = this.rand.nextGaussian() * 0.02D;
+                world.addParticle(effect, player.getX() + player.getLookAngle().x * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, player.getY() + 0.4 + (double) (this.rand.nextFloat() * this.height), player.getZ() + player.getLookAngle().z * 2 + (double) (this.rand.nextFloat() * this.width * 2) - (double) this.width, d2, d0, d1);
+            }
+        }
+    }
 }

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "I",
+    "S",
+    " "
+
+  ],
+
+  "key":
+  {
+    "I": "minecraft:gold_ingot",
+    "S":
+    "minecraft:stick"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:gold_dagger",
+    "count": 1
+  },
+  "category":"equipment"
+}

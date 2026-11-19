@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    " PP",
+    " SP",
+    "S  "
+  ],
+
+  "key": {
+    "P": "#minecraft:planks",
+    "S": "minecraft:stick"
+  },
+
+  "result": {
+    "id": "warhammermod:wooden_halberd",
+    "count": 1
+  },
+  "category":"equipment"
+}

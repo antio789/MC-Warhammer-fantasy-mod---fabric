@@ -1,0 +1,77 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/corner_01",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/corner_02",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/corner_03",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 2
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/straight_01",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/straight_02",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/crossroad_01",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/crossroad_02",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 3
+    },
+    {
+      "element": {
+        "element_type": "minecraft:legacy_single_pool_element",
+        "location": "warhammermod:dwarf_village/streets/turn_01",
+        "processors": "warhammermod:stonify",
+        "projection": "terrain_matching"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "warhammermod:dwarf_village/terminators"
+}

@@ -1,6 +1,6 @@
 {
-   "parent": "item/generated",
-   "textures": {
-       "layer0": "warhammermod:items/warpstone"
-   }
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "warhammermod:item/warpstone"
+  }
 }

@@ -1,0 +1,821 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:written_book",
+          "weight": 1,
+          "functions": [
+            {
+              "function": "minecraft:set_written_book_pages",
+              "pages": [
+                [
+                  [
+                    "",
+                    {
+                      "text": "Hello from the Warhammer Universe mod",
+                      "bold": true
+                    },
+                    "\n\nThank you for playing!\n\nThis mod gets its inspiration from the Warhammer fantasy universe, what you can expect from this mod are new weapons, mobs, and structures."
+                  ]
+                ],
+                [
+                  [
+                    "\nThe Fantasy universe is divided in different races, This mod covers 3 of them: ",
+                    {
+                      "text": "The Empire",
+                      "color": "dark_red"
+                    },
+                    ", ",
+                    {
+                      "text": "The Dwarfs",
+                      "color": "dark_blue"
+                    },
+                    " and ",
+                    {
+                      "text": "The Skaven",
+                      "color": "dark_green"
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "More races exist such as Bretonnia, high Elves, Wood Elves, Dark Elves, Chaos Worshippers, Beastmen, \u2026 but unfortunately I do not have enough time to develop them all, maybe in the future, stay tuned."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "The Empire",
+                      "color": "dark_red"
+                    },
+                    " is the human faction using a variety of gunpowder weaponry in battle.\n\n",
+                    {
+                      "text": "The Dwarfs",
+                      "color": "dark_blue"
+                    },
+                    " are living in the mountains and are master craftsman creating high quality weapons and armour."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "The Skaven",
+                      "color": "dark_green"
+                    },
+                    " are rat-like creatures living deep under the ground, they usually use very basic weaponry but are capable of Crafting Powerful ranged weapons using Warpstone, a stone infused with chaos energy."
+                  ]
+                ],
+                [
+                  [
+                    "This book covers the mod in 3 parts. You can click on the bold text to move there directly\n",
+                    {
+                      "text": "Equipment:",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "7"
+                      },
+                      "underlined": true
+                    },
+                    {
+                      "text": "\n",
+                      "bold": true
+                    },
+                    {
+                      "text": "Human",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "8"
+                      }
+                    },
+                    {
+                      "text": ", ",
+                      "bold": true
+                    },
+                    {
+                      "text": "Dwarf",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "17"
+                      }
+                    },
+                    {
+                      "text": " ,",
+                      "bold": true
+                    },
+                    {
+                      "text": "Skaven",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "24"
+                      }
+                    },
+                    {
+                      "text": "\n",
+                      "bold": true
+                    },
+                    {
+                      "text": "New Mobs",
+                      "bold": true,
+                      "underlined": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "26"
+                      }
+                    },
+                    {
+                      "text": ":",
+                      "bold": true,
+                      "underlined": true
+                    },
+                    {
+                      "text": "\n",
+                      "bold": true
+                    },
+                    {
+                      "text": "Pegasus",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "26"
+                      }
+                    },
+                    {
+                      "text": ", ",
+                      "bold": true
+                    },
+                    {
+                      "text": "Dwarfs",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "31"
+                      }
+                    },
+                    {
+                      "text": ", ",
+                      "bold": true
+                    },
+                    {
+                      "text": "Skaven",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "38"
+                      }
+                    },
+                    {
+                      "text": "\n",
+                      "bold": true
+                    },
+                    {
+                      "text": "Structures:",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "48"
+                      },
+                      "underlined": true
+                    },
+                    {
+                      "text": "\nDwarf Villages",
+                      "bold": true,
+                      "clickEvent": {
+                        "action": "change_page",
+                        "value": "48"
+                      }
+                    }
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Part 1: Equipment",
+                      "underlined": true
+                    },
+                    "\nThe weapons are divided in 3 categories.\nThere are craftable ",
+                    {
+                      "text": "\u201cHuman\u201d weapons",
+                      "bold": true,
+                      "hoverEvent": {
+                        "action": "show_text",
+                        "contents": "refer to the recipe book for crafting"
+                      }
+                    },
+                    ", Dwarf weapons that are traded from them, and Skaven weaponry that can be obtained by killing them."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Human Equipment:",
+                      "bold": true
+                    },
+                    "\n",
+                    {
+                      "text": "1. Melee Weapons:",
+                      "underlined": true
+                    },
+                    "\nof all varieties, from Wood to Netherite.\n",
+                    {
+                      "text": "Spears",
+                      "bold": true
+                    },
+                    ", Less powerful than swords but can be thrown.\n",
+                    {
+                      "text": "Daggers",
+                      "bold": true
+                    },
+                    ", They don\u2019t deal much damage but have a very fast attack speed and cheap to craft."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Halberds",
+                      "bold": true
+                    },
+                    ", Same damage as swords, a bit slower but with a powerful right click strike with extended range.\n",
+                    {
+                      "text": "Warhammers",
+                      "bold": true
+                    },
+                    ", slow attack speed but with high damage output."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "2.Shields:",
+                      "underlined": true
+                    },
+                    "\nA few new ",
+                    {
+                      "text": "shields",
+                      "bold": true
+                    },
+                    " with extended durability from different races\nAll can be crafted except for the Skaven shield that can only be dropped."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "3.Ranged Weapons:",
+                      "underlined": true
+                    },
+                    "\nThe most common imperial weapon is the ",
+                    {
+                      "text": "Musket",
+                      "bold": true
+                    },
+                    " a reliable gunpowder weapon, firing bullets. It deals more damage than a bow but requires time to reload. Uses ",
+                    {
+                      "text": "Cartridges as ammunition",
+                      "bold": true
+                    },
+                    ".\n "
+                  ]
+                ],
+                [
+                  [
+                    "A ",
+                    {
+                      "text": "pistol",
+                      "bold": true
+                    },
+                    " is also available, compact reloads faster but at the expense of firepower. Uses ",
+                    {
+                      "text": "Cartridges as ammunition",
+                      "bold": true
+                    },
+                    ".\n "
+                  ]
+                ],
+                [
+                  [
+                    "A ",
+                    {
+                      "text": "repeater Handgun",
+                      "bold": true
+                    },
+                    " exists, capable of firing 6 shots, but requires much more time to reload it. Uses ",
+                    {
+                      "text": "Cartridges",
+                      "bold": true
+                    },
+                    " as ammunition"
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Blunderbuss",
+                      "bold": true
+                    },
+                    " fires a shot of multiple bullets, deals more damage at short range but quickly loses power at longer ranges. Uses ",
+                    {
+                      "text": "Shotshell as ammunition",
+                      "bold": true
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Grenade launchers",
+                      "bold": true
+                    },
+                    " fires, as the name implies, ",
+                    {
+                      "text": "grenades",
+                      "bold": true
+                    },
+                    ", it has its own enchantments, for range and explosion size, both of those cannot be used at the same time."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Gunswords",
+                      "bold": true
+                    },
+                    " (Iron and Diamond variety), they are simply a pistol with a blade, good in melee and at range.\nThe ",
+                    {
+                      "text": "sling",
+                      "bold": true
+                    },
+                    ", simple weapon that throws stone at a fast speed,less powerful than a bow but uses ",
+                    {
+                      "text": "cobblestone",
+                      "bold": true
+                    },
+                    " as ammunition."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Dwarven Weapons:",
+                      "bold": true
+                    },
+                    "\n",
+                    {
+                      "text": "1.Melee Weapons",
+                      "underlined": true
+                    },
+                    "\nThe ",
+                    {
+                      "text": "Greatpick",
+                      "bold": true
+                    },
+                    " is an advanced Diamond Pickaxe that is also good in a melee fight with similar stats to a Diamond Sword.sold by miners."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "2.Ranged Weapons.",
+                      "underlined": true
+                    },
+                    "\nThe Dwarf Engineer, can sell you advanced weaponry.\nThe ",
+                    {
+                      "text": "Thunderer Handgun",
+                      "bold": true
+                    },
+                    " is a musket with extended durability, power, and faster reload speed. Uses ",
+                    {
+                      "text": "Cartridges as ammunition",
+                      "bold": true
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Grudgeraker",
+                      "bold": true
+                    },
+                    " is a Blunderbuss type shotgun with 2 shots instead of one. Uses ",
+                    {
+                      "text": "Shotshell as ammunition",
+                      "bold": true
+                    },
+                    ".\nThe ",
+                    {
+                      "text": "DrakeGun",
+                      "bold": true
+                    },
+                    " is a flamethrower, using ",
+                    {
+                      "text": "Blaze rods as ammunition",
+                      "bold": true
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "3.Armour",
+                      "underlined": true
+                    },
+                    "\nThe armourer can craft you a Diamond Chainmail armour."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "4.Special Weapon",
+                      "underlined": true
+                    },
+                    "\n",
+                    {
+                      "text": "Ghal Maraz",
+                      "hoverEvent": {
+                        "action": "show_text",
+                        "contents": "This is where the Warhammer universe gets its name from"
+                      },
+                      "bold": true
+                    },
+                    " is a Legendary Warhammer that is given by a dwarf lord to a human saviour that helped them in battle.\nTo obtain this weapon, it requires a lord to spawn"
+                  ]
+                ],
+                [
+                  [
+                    "this is possible when Dwarves reach the Master trading level, they can then call a Lord to their village. After a successful raid, The Lord(make sure he survives) will then give you The Legendary Ghal Maraz as a gift."
+                  ]
+                ],
+                [
+                  [
+                    "The Warhammer is more powerful and with a faster attack speed, it can also give you random bonus effects in battle."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Skaven Weapons.",
+                      "bold": true
+                    },
+                    "\nThe skaven are known for their powerful Warpstone weaponry. The fired warpstone is also capable of giving the ",
+                    {
+                      "text": "Wither Effect",
+                      "bold": true
+                    },
+                    " due to the Chaos Energy contained. 2 ranged weapons can be obtained while killing them."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Warplock Jezzail",
+                      "bold": true
+                    },
+                    ", a powerful long range musket with a scope\n",
+                    {
+                      "text": "Ratling Gun",
+                      "bold": true
+                    },
+                    ", a Gatling gun that can fire many projectiles automatically, it has a magazine capacity of 64."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Part 2: New Mobs",
+                      "underlined": true
+                    },
+                    "\n",
+                    {
+                      "text": "Pegasus",
+                      "bold": true
+                    },
+                    "\nThis mod brings the Pegasus to life, a flying horse, very commonly used by human commanders to move around quickly. They can be found in ",
+                    {
+                      "text": "mountains",
+                      "bold": true,
+                      "hoverEvent": {
+                        "action": "show_text",
+                        "contents": "The exact biomes are: meadow, frozen_peaks, jagged_peaks, stony_peaks, snowy_slopes, and cherry_grove"
+                      }
+                    },
+                    " and can be used like a horse or for flying"
+                  ]
+                ],
+                [
+                  [
+                    "Their flying ability functions similarly to the Elytra. Jump up high with the horse, ",
+                    {
+                      "text": "double tap",
+                      "bold": true
+                    },
+                    " the space bar, and you are in flight mode. The Pegasus can use 2 flying modes, that can be switched by ",
+                    {
+                      "text": "double pressing the space bar",
+                      "bold": true
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "The first mode: ",
+                    {
+                      "text": "stationary",
+                      "bold": true
+                    },
+                    ", moves slowly but allows you to go up and down precisely. The second mode is ",
+                    {
+                      "text": "Elytra",
+                      "bold": true
+                    },
+                    " mode, the Pegasus will fly through the sky at great speed and contrary to the Elytra they can stay in the air without losing altitude."
+                  ]
+                ],
+                [
+                  [
+                    "They can be bred with normal horses for a 30% chance to get a coloured Pegasus, otherwise it will just be a horse. The obtained horse will either colour from the Pegasus or out of the colour of the horse parent, with a small chance of a random pattern, like for horses."
+                  ]
+                ],
+                [
+                  [
+                    "Keep in mind that mixed white Pegasus will not be of the bright white colour but more similar to the horse white colour."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Dwarves",
+                      "underlined": true,
+                      "color": "dark_blue"
+                    },
+                    "\nDwarves can be found in Dwarf villages in the mountain either on the surface or under the ground below level 0. Dwarf are neutral, which means they do not attack the player, but they will fight back if attacked."
+                  ]
+                ],
+                [
+                  [
+                    "They will attack hostile creatures, including Skaven. 5 different professions are possible with them, with their own unique trades."
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Miner",
+                      "bold": true
+                    },
+                    " sells and buys minerals and uses the blast furnace as workstation.\nThe ",
+                    {
+                      "text": "Builder",
+                      "bold": true
+                    },
+                    " is similar to the Mason villager but with extra trades including quartz blocks, also using the Stonecutter as workstation."
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Engineer",
+                      "bold": true
+                    },
+                    " sells Ammunition, Weapons and Redstone components. He is the one where to buy the special Dwarven weapons and the Diamond Chainmail."
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Farmer",
+                      "bold": true
+                    },
+                    " is very similar to the Farmer Villager, except for the Beer, it is a strong beverage giving special effects, but with a chance to also give nausea."
+                  ]
+                ],
+                [
+                  [
+                    "The ",
+                    {
+                      "text": "Slayer",
+                      "bold": true
+                    },
+                    " is a special Dwarf, an outcast that is focused on dying in battle it will exchange youmeat from hunted animals as well as mob loot and skulls."
+                  ]
+                ],
+                [
+                  [
+                    "Dwarves do not call for an Iron Golem, as they defend themselves. However, a dwarf that reaches max trading level \u201c",
+                    {
+                      "text": "Master",
+                      "bold": true
+                    },
+                    "\u201d can call upon a ",
+                    {
+                      "text": "Lord",
+                      "bold": true
+                    },
+                    ", but only once per dwarf. The Lord is the special Dwarf that can give you Ghal Maraz as a reward for defeating a ",
+                    {
+                      "text": "Raid",
+                      "bold": true
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Skaven",
+                      "underlined": true,
+                      "color": "dark_green"
+                    },
+                    "\nSkaven are Rat-like creatures that usually live deep beneath the ground, they can be rarely found under the Y-level 60 in mountains and plains. Their nature makes it so that they also like to travel around in swamp on the surface at night."
+                  ]
+                ],
+                [
+                  [
+                    "Skaven ",
+                    {
+                      "text": "Patrols",
+                      "bold": true
+                    },
+                    " can also be encountered anywhere in the world.\nSkaven Like to ",
+                    {
+                      "text": "swarm",
+                      "bold": true
+                    },
+                    " their enemies similarly to the Zombie, fighting them can have more Skaven Spawning around."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Skaven",
+                      "color": "dark_green"
+                    },
+                    " exist in various shapes and sizes and always come armed with a variety of weapons from wood to iron."
+                  ]
+                ],
+                [
+                  [
+                    "The smallest weakest Skaven are ",
+                    {
+                      "text": "slaves",
+                      "bold": true
+                    },
+                    " they have low health (7 hearts) and damage and similar speed to the spider. They come either equiped with a ",
+                    {
+                      "text": "spear",
+                      "bold": true
+                    },
+                    " or a ",
+                    {
+                      "text": "sling",
+                      "bold": true
+                    },
+                    " for ranged attacks."
+                  ]
+                ],
+                [
+                  [
+                    "The more standard Skaven are ",
+                    {
+                      "text": "Clanrats",
+                      "bold": true
+                    },
+                    ", they have 8 hearts of health, and a bit of armour while being a bit stronger. They either come with ",
+                    {
+                      "text": "sword and shield",
+                      "bold": true
+                    },
+                    " or with a ",
+                    {
+                      "text": "Jezzail",
+                      "bold": true
+                    },
+                    "."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Stormvermin",
+                      "bold": true
+                    },
+                    " are the largest and strongest they always come in their ",
+                    {
+                      "text": "red painted armour",
+                      "color": "dark_red"
+                    },
+                    ". They have stronger health (10 hearts) and damage output with heavier armour stats. Their heavy armour makes it that they are a bit slower than the others."
+                  ]
+                ],
+                [
+                  [
+                    "They come with a halberd or a sword and shield.\nThere are also 3 special Clanrats that can spawn."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Gutter Runner",
+                      "bold": true
+                    },
+                    ", low health and no armour they are fast assassins that jump on their target doing large damage.\n",
+                    {
+                      "text": "Globadier",
+                      "bold": true
+                    },
+                    " are poison rats, they throw Lingering potions of Harming or Poison."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Ratling Gunner",
+                      "bold": true
+                    },
+                    ", are Skaven equiped with a Ratling Gun approaching them is very risky as they fire a continuous stream of bullets."
+                  ]
+                ],
+                [
+                  [
+                    "Killing the ranged Skaven will drop their weapons. Additionally, all the Skaven can drop Warpstone when killed, that can be used to fire their weapons."
+                  ]
+                ],
+                [
+                  [
+                    "",
+                    {
+                      "text": "Part 3: Structures",
+                      "bold": true,
+                      "underlined": true
+                    },
+                    {
+                      "text": "\nDwarf Villages",
+                      "bold": true
+                    },
+                    " can generate in the ",
+                    {
+                      "text": "mountains",
+                      "bold": true,
+                      "hoverEvent": {
+                        "action": "show_text",
+                        "contents": "meadow, frozen_peaks, jagged_peaks, stony_peaks, snowy_slopes, and cherry_grove"
+                      }
+                    },
+                    ". There are 2 possibilities. They can either generate on the surface or deep below the surface under the Y-level 0."
+                  ]
+                ],
+                [
+                  [
+                    "They will randomly generate like a village and contain certain buildings with a workstation."
+                  ]
+                ]
+              ],
+              "mode": "replace_all"
+            },
+            {
+              "function": "minecraft:set_book_cover",
+              "author": "antio789",
+              "title": "Tutorial",
+              "generation": 0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

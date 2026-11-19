@@ -1,34 +1,36 @@
 package warhammermod.Items.melee;
 
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.BlocksAttacks;
 
-import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ShieldItem;
-import warhammermod.Items.GunBase;
-import warhammermod.utils.reference;
+import java.util.List;
+import java.util.Optional;
 
-public class ShieldTemplate  extends ShieldItem {
-
-
-    public ShieldTemplate( Properties builder){
-
-        super(builder.durability(1008).tab(reference.warhammer));
-        FabricModelPredicateProviderRegistry.register(this, new ResourceLocation("blocking"), (stack, world, entity,i) -> {
-            return entity != null && entity.isUsingItem() && (entity.getUseItem() == stack || (entity.getOffhandItem() == stack && hasGun(entity, entity.getMainHandItem()))) ? 1.0F : 0.0F;
-        });
-
+public class ShieldTemplate extends Item {
+    public ShieldTemplate(Item.Properties properties) {
+        super(shieldProperties(properties));
     }
 
-    private boolean hasGun(LivingEntity entityIn, ItemStack stack){
-        if(entityIn instanceof Player) {
-            Player player = (Player) entityIn;
-            return stack.getItem() instanceof GunBase && ((GunBase) stack.getItem()).isReadytoFire(stack);
-            //|| stack.getItem() instanceof GunSwordTemplate && ((GunSwordTemplate) stack.getItem()).isReadytoFire(stack);
-        }return false;
+    public static Item.Properties shieldProperties(Item.Properties properties) {
+        return properties
+                .durability(336)
+                .component(DataComponents.BLOCKS_ATTACKS, defaultBlocksAttacks())
+                .component(DataComponents.BREAK_SOUND, SoundEvents.SHIELD_BREAK)
+                .equippableUnswappable(EquipmentSlot.OFFHAND);
     }
 
-
+    private static BlocksAttacks defaultBlocksAttacks() {
+        return new BlocksAttacks(
+                0.25F,
+                1.0F,
+                List.of(new BlocksAttacks.DamageReduction(90.0F, Optional.empty(), 0.0F, 1.0F)),
+                new BlocksAttacks.ItemDamageFunction(3.0F, 1.0F, 1.0F),
+                Optional.empty(),
+                Optional.of(SoundEvents.SHIELD_BLOCK),
+                Optional.of(SoundEvents.SHIELD_BREAK)
+        );
+    }
 }
