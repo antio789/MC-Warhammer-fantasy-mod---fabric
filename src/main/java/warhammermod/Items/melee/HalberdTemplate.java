@@ -13,8 +13,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ToolMaterial;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.AttackRange;
-import net.minecraft.world.item.component.SwingAnimation;
-import net.minecraft.world.item.SwingAnimationType;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -23,6 +21,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import warhammermod.utils.ModEnchantmentHelper;
+import warhammermod.utils.Registry.WHRegistry;
 
 public class HalberdTemplate extends Item {
     /**
@@ -32,7 +31,7 @@ public class HalberdTemplate extends Item {
     private static final float THRUST_RANGE = 6.5F;
     private static final float THRUST_CHARGE_TICKS = 20.0F;
     /** Length of the release-thrust swing cycle in ticks (vanilla whack is 6). */
-    private static final int THRUST_SWING_TICKS = 12;
+    public static final int THRUST_SWING_TICKS = 12;
 
     protected final float attackDamage;
 
@@ -112,11 +111,11 @@ public class HalberdTemplate extends Item {
                     SoundEvents.PLAYER_ATTACK_KNOCKBACK, player.getSoundSource(), 1.0F, 1.0F);
             stack.hurtAndBreak(1, player, net.minecraft.world.entity.EquipmentSlot.MAINHAND);
             player.getCooldowns().addCooldown(stack, 60);
-            // mark just this swing as a STAB: every client reads the swing type
-            // live from the held stack's SWING_ANIMATION component, so the
-            // vanilla spear thrust animation plays first and third person;
-            // HalberdSwingMixin clears it again when the swing ends
-            stack.set(DataComponents.SWING_ANIMATION, new SwingAnimation(SwingAnimationType.STAB, THRUST_SWING_TICKS));
+            // flag this one swing as a thrust: HalberdThrustSwingMixin makes
+            // ItemStack.getSwingAnimation() return STAB while the flag is set,
+            // so the vanilla spear thrust animation plays first and third
+            // person; HalberdSwingMixin clears the flag when the swing ends
+            stack.set(WHRegistry.HALBERD_THRUST, true);
             player.swing(InteractionHand.MAIN_HAND);
         }
         return true;

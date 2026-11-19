@@ -1,5 +1,6 @@
 package warhammermod.utils.Registry;
 
+import com.mojang.serialization.Codec;
 import net.fabricmc.fabric.api.event.registry.FabricRegistryBuilder;
 import net.fabricmc.fabric.api.event.registry.RegistryAttribute;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -8,6 +9,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -28,6 +30,7 @@ public class WHRegistry {
 
     public static final DataComponentType<Ammocomponent> AMMO = DataComponentType.<Ammocomponent>builder().persistent(Ammocomponent.CODEC).networkSynchronized(Ammocomponent.PACKET_CODEC).build();
     public static final DataComponentType<firecomponent> Fireorder = DataComponentType.<firecomponent>builder().persistent(firecomponent.CODEC).networkSynchronized(firecomponent.PACKET_CODEC).build();
+    public static final DataComponentType<Boolean> HALBERD_THRUST = DataComponentType.<Boolean>builder().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build();
 
     public static final SimpleParticleType WARP = FabricParticleTypes.simple();
 
@@ -49,6 +52,7 @@ public class WHRegistry {
     public static void registercomponents() {
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, reference.location("ammo"), AMMO);
         Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, reference.location("fireorder"), Fireorder);
+        Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, reference.location("halberd_thrust"), HALBERD_THRUST);
     }
 
     public static void registerattributes() {
