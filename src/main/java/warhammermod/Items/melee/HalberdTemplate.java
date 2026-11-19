@@ -32,7 +32,7 @@ public class HalberdTemplate extends Item {
      * (vanilla spear uses 4.5 min / 6.5 max).
      */
     private static final float THRUST_RANGE = 6.5F;
-    private static final float THRUST_CHARGE_TICKS = 20.0F;
+    private static final float THRUST_CHARGE_TICKS = 10.0F;
     /** Length of the release-thrust swing cycle in ticks (vanilla whack is 6). */
     public static final int THRUST_SWING_TICKS = 12;
 
