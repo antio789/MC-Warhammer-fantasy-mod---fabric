@@ -1,6 +1,28 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "warhammermod:item/nuln_repeater_handgun"
+    "type": "minecraft:select",
+    "property": "minecraft:display_context",
+    "cases": [
+      {
+        "when": ["gui", "ground", "fixed", "on_shelf"],
+        "model": {
+          "type": "minecraft:model",
+          "model": "warhammermod:item/nuln_repeater_handgun"
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:special",
+      "base": "warhammermod:item/nuln_repeater_handgun",
+      "model": {
+        "type": "warhammermod:repeater"
+      },
+      "transformation": {
+        "left_rotation": [0.0, 0.0, 0.0, 1.0],
+        "right_rotation": [0.0, 0.0, 0.0, 1.0],
+        "scale": [1.0, -1.0, -1.0],
+        "translation": [0.0, 0.0, 0.0]
+      }
+    }
   }
 }

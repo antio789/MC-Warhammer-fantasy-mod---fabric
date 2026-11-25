@@ -11,9 +11,12 @@ import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import warhammermod.Client.Render.Entity.Renders.DwarfRenderer;
+import warhammermod.Client.Render.Item.Model.RepeaterModel;
+import warhammermod.Client.Render.Item.RepeaterSpecialRenderer;
 import warhammermod.Client.Render.Entity.Renders.Models.DwarfModel;
 import warhammermod.Client.Render.Entity.Renders.Models.SkavenModel;
 import warhammermod.Client.Render.Entity.Renders.PegasusRenderer;
@@ -40,6 +43,7 @@ public class Clientside implements ClientModInitializer {
     public static final ModelLayerLocation WarpBullet = new ModelLayerLocation(location("warpbullet"), "main");
     public static final ModelLayerLocation Grenade = new ModelLayerLocation(location("grenade"), "main");
     public static final ModelLayerLocation Grapeshot = new ModelLayerLocation(location("grapeshot"), "main");
+    public static final ModelLayerLocation Repeater = new ModelLayerLocation(location("repeater"), "main");
 
     @Override
     public void onInitializeClient() {
@@ -78,6 +82,9 @@ public class Clientside implements ClientModInitializer {
     }
 
     public void registerModelLayer() {
+        // special item renderer for the repeater handgun (replaces 1.21.3 BuiltinItemRendererRegistry)
+        SpecialModelRenderers.ID_MAPPER.put(location("repeater"), RepeaterSpecialRenderer.Unbaked.MAP_CODEC);
+        ModelLayerRegistry.registerModelLayer(Repeater, RepeaterModel::createLayer);
         ModelLayerRegistry.registerModelLayer(Skaven, SkavenModel::createBodyLayer);
         ModelLayerRegistry.registerModelLayer(Dwarf, DwarfModel::getTexturedModelData);
         ModelLayerRegistry.registerModelLayer(Bullet, ProjectileModel::createLayer);
