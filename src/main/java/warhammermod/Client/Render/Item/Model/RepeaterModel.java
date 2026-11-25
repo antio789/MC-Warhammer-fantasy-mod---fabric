@@ -20,10 +20,22 @@ import net.minecraft.util.Unit;
 @Environment(EnvType.CLIENT)
 public class RepeaterModel extends Model<Unit> {
     public final ModelPart barrelHolder;
+    /**
+     * Barrel spin angle (radians), set by RepeaterSpecialRenderer each frame from the
+     * ammo component. Applied in setupAnim because the render pipeline calls
+     * setupAnim (which resets poses) right before renderToBuffer.
+     */
+    public float barrelZRot;
 
     public RepeaterModel(ModelPart root) {
         super(root, RenderTypes::entitySolid);
         this.barrelHolder = root.getChild("barrelholder1");
+    }
+
+    @Override
+    public void setupAnim(Unit state) {
+        super.setupAnim(state);
+        this.barrelHolder.zRot = this.barrelZRot;
     }
 
     public static LayerDefinition createLayer() {

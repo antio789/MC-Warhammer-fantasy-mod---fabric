@@ -43,9 +43,11 @@ public class RepeaterSpecialRenderer implements SpecialModelRenderer<Ammocompone
     @Override
     public void submit(@Nullable Ammocomponent ammo, PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
                        int lightCoords, int overlayCoords, boolean hasFoil, int outlineColor) {
-        // spin the barrel cylinder as rounds are fired (was RenderRepeater.rotation_calc in 1.21.3)
+        // spin the barrel cylinder as rounds are fired (was RenderRepeater.rotation_calc in 1.21.3).
+        // stored on the model and applied in setupAnim, because the 26.2 render pipeline calls
+        // Model.setupAnim (which resets all part poses) immediately before renderToBuffer.
         if (ammo != null) {
-            this.model.barrelHolder.zRot = 50F * -(ammo.startammo() - ammo.ammocount());
+            this.model.barrelZRot = 50F * -(ammo.startammo() - ammo.ammocount());
         }
         submitNodeCollector.order(0).submitModel(this.model, Unit.INSTANCE, poseStack, TEXTURE, lightCoords, overlayCoords, outlineColor, null);
         if (hasFoil) {
