@@ -29,16 +29,12 @@ public final class HalberdAnimations {
         return Mth.clamp(Mth.inverseLerp(time, start, end), 0.0F, 1.0F);
     }
 
-    /**
-     * Exact copy of SpearAnimations.firstPersonAttack (26.2) - the halberd
-     * thrust starts from the identical curve and can be tweaked from here.
-     */
     public static void firstPersonThrust(float attack, PoseStack poseStack, int invert, HumanoidArm arm) {
-        float startingAmount = Ease.inOutSine(progress(attack, 0.0F, 0.05F));
+        float startingAmount = 1;//Ease.inOutSine(progress(attack, 0.0F, 0.05F));
         float middleAmount = Ease.outBack(progress(attack, 0.05F, 0.2F));
         float endingAmount = Ease.inOutExpo(progress(attack, 0.4F, 1.0F));
         poseStack.translate(invert * 0.1F * (startingAmount - middleAmount), -0.075F * (startingAmount - endingAmount), 0.65F * (startingAmount - middleAmount));
-        poseStack.mulPose(Axis.XP.rotationDegrees(-70.0F * (startingAmount - endingAmount)));
-        poseStack.translate(0.0F, 0.0F, -0.25F * (endingAmount - middleAmount));
+        poseStack.mulPose(Axis.XP.rotationDegrees(-100.0F * (startingAmount - endingAmount)));
+        poseStack.translate(-0.3, 0.0F, -0.25F * (endingAmount - middleAmount));
     }
 }

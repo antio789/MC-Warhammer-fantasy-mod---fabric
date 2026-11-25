@@ -35,11 +35,7 @@ public class HalberdFirstPersonThrustMixin {
                     target = "Lnet/minecraft/client/model/effects/SpearAnimations;firstPersonAttack(FLcom/mojang/blaze3d/vertex/PoseStack;ILnet/minecraft/world/entity/HumanoidArm;)V"
             )
     )
-    private void warhammermod$halberdFirstPersonThrust(
-            float attack, PoseStack poseStack, int invert, HumanoidArm arm,
-            AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand,
-            float swingAttack, ItemStack itemStack, float inverseArmHeight,
-            PoseStack handPoseStack, SubmitNodeCollector submitNodeCollector, int lightCoords) {
+    private void warhammermod$halberdFirstPersonThrust(float attack, PoseStack poseStack, int invert, HumanoidArm arm, AbstractClientPlayer player, float frameInterp, float xRot, InteractionHand hand, float swingAttack, ItemStack itemStack, float inverseArmHeight, PoseStack handPoseStack, SubmitNodeCollector submitNodeCollector, int lightCoords) {
         if (itemStack.getItem() instanceof HalberdTemplate
                 && itemStack.getOrDefault(WHRegistry.HALBERD_THRUST, false)) {
             HalberdAnimations.firstPersonThrust(attack, poseStack, invert, arm);
