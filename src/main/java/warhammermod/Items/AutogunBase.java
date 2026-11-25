@@ -39,7 +39,11 @@ public abstract class AutogunBase extends GunBase implements IReloadItem {
     public boolean releaseUsing(ItemStack stack, Level world, LivingEntity entityLiving, int timeLeft) {
         if (entityLiving instanceof Player player && !world.isClientSide() && !player.isCreative()) {
             if (isCharged(stack)) {
-                setCharge(stack, getCharge(stack) - (getUseDuration(stack, entityLiving) - timeLeft) / getFireRate());
+                // never consume more than the loaded charge: holding the trigger
+                // past the last shot must not drive the ammo count negative
+                // (negative values crash the component hashing on save/packets)
+                int consumed = Math.min(getCharge(stack), (getUseDuration(stack, entityLiving) - timeLeft) / getFireRate());
+                setCharge(stack, getCharge(stack) - consumed);
                 return true;
             } else {
                 stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND);

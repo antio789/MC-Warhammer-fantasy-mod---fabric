@@ -4,14 +4,25 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.util.ExtraCodecs;
 
 public record Ammocomponent(int ammocount, int startammo) {
     public static final Ammocomponent DEFAULT = new Ammocomponent(0, 0);
+
+    /**
+     * Clamp on construction: every path (codec decode, packet decode, setCharge)
+     * goes through here, so the component can never hold a negative value - the
+     * hashing/serialization path (HashedStack, player data) rejects negatives and
+     * crashed the client with "Value must be within range [0;2147483647]".
+     */
+    public Ammocomponent {
+        ammocount = Math.max(0, ammocount);
+        startammo = Math.max(0, startammo);
+    }
+
     public static final Codec<Ammocomponent> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                            ExtraCodecs.intRange(0, Integer.MAX_VALUE).fieldOf("ammo").forGetter(Ammocomponent::ammocount),
-                            ExtraCodecs.intRange(0, Integer.MAX_VALUE).fieldOf("magsize").forGetter(Ammocomponent::startammo)
+                            Codec.INT.fieldOf("ammo").forGetter(Ammocomponent::ammocount),
+                            Codec.INT.fieldOf("magsize").forGetter(Ammocomponent::startammo)
                     )
                     .apply(instance, Ammocomponent::new)
     );
