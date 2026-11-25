@@ -1,7 +1,7 @@
 {
-  "parent": "minecraft:item/generated",
+  "gui_light": "front",
   "textures": {
-    "layer0": "warhammermod:item/nuln_repeater_handgun"
+    "particle": "warhammermod:item/repeater"
   },
   "display": {
     "thirdperson_righthand": {
