@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "N",
+    "G",
+    "P"
+  ],
+
+  "key":
+  {
+    "N":
+    "minecraft:iron_nugget",
+    "G":
+    "minecraft:gunpowder",
+    "P":
+    "minecraft:paper"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:cartridge",
+    "count": 1
+  },
+  "category":"equipment"
+}

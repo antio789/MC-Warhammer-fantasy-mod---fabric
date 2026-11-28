@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "III",
+    " SI",
+    " S "
+  ],
+
+  "key":
+  {
+    "I": "minecraft:gold_ingot",
+    "S":
+    "minecraft:stick"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:gold_warhammer",
+    "count": 1
+  },
+  "category":"equipment"
+}

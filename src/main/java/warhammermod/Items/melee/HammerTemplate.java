@@ -1,42 +1,29 @@
 package warhammermod.Items.melee;
 
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.Tier;
-import warhammermod.utils.reference;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ToolMaterial;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
 
+public class HammerTemplate extends Item {
+    protected final float attackDamage;
 
-public class HammerTemplate extends SwordItem {
-    protected float attackDamage;
-    protected float attackSpeed;
-    private final Multimap<Attribute, AttributeModifier> modifierMultimap;
-
-    public HammerTemplate(Tier tier, Properties properties) {
-        super(tier,0,0, properties.tab(reference.warhammer));
-        this.attackDamage = 2.5F + tier.getAttackDamageBonus()*2;
-        attackSpeed=-2.9F;
-        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", this.attackDamage, AttributeModifier.Operation.ADDITION));
-        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", attackSpeed, AttributeModifier.Operation.ADDITION));
-        this.modifierMultimap = builder.build();
+    public HammerTemplate(ToolMaterial material, Item.Properties properties, float damage, float attackspeed) {
+        super(material.applySwordProperties(properties, damage, attackspeed).attributes(createAttributes(damage, attackspeed)));
+        this.attackDamage = damage;
     }
 
-    public HammerTemplate(Tier tier, Properties properties, float damage, float attackspeed) {
-        super(tier,0,0, properties.tab(reference.warhammer));
-        this.attackDamage = damage + tier.getAttackDamageBonus()*2;
-        attackSpeed=attackspeed;
-        ImmutableMultimap.Builder<Attribute, AttributeModifier> builder = ImmutableMultimap.builder();
-        builder.put(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_UUID, "Weapon modifier", this.attackDamage, AttributeModifier.Operation.ADDITION));
-        builder.put(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_UUID, "Weapon modifier", attackSpeed, AttributeModifier.Operation.ADDITION));
-        this.modifierMultimap = builder.build();
+    public static ItemAttributeModifiers createAttributes(float damage, float speed) {
+        return ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(Identifier.withDefaultNamespace("base_attack_damage"), damage, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ATTACK_SPEED, new AttributeModifier(Identifier.withDefaultNamespace("base_attack_speed"), speed, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .build();
     }
 
-    public Multimap<Attribute, AttributeModifier> getDefaultAttributeModifiers(EquipmentSlot p_111205_1_) {
-        return p_111205_1_ == EquipmentSlot.MAINHAND ? this.modifierMultimap : super.getDefaultAttributeModifiers(p_111205_1_);
+    public float getDamage() {
+        return this.attackDamage;
     }
 }

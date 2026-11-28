@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+
+  "pattern":
+  [
+    "MMM",
+    "MLM",
+    " M "
+  ],
+
+  "key":
+  {
+    "M":
+    "warhammermod:musket",
+    "L":
+    "minecraft:lead"
+  },
+
+  "result":
+  {
+    "id": "warhammermod:nuln_repeater_handgun",
+    "count": 1
+  },
+  "category":"equipment"
+}

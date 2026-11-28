@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:jigsaw",
+  "biomes": "#warhammermod:has_structure/dwarf_village",
+  "max_distance_from_center": 80,
+  "size": 6,
+  "spawn_overrides": {},
+  "start_height": {
+    "type": "minecraft:uniform",
+    "max_inclusive": {
+      "absolute": 0
+    },
+    "min_inclusive": {
+      "absolute": -40
+    }
+  },
+  "start_pool": "warhammermod:dwarf_village/town_centers_underground",
+  "step": "underground_decoration",
+  "terrain_adaptation": "beard_thin",
+  "use_expansion_hack": true
+}
