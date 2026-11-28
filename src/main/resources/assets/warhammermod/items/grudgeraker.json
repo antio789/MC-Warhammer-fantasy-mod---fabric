@@ -1,6 +1,36 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "warhammermod:item/grudgeraker"
+    "type": "minecraft:condition",
+    "property": "minecraft:using_item",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "warhammermod:item/grudgeraker"
+    },
+    "on_true": {
+      "type": "minecraft:condition",
+      "property": "warhammermod:empty_mag",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "warhammermod:item/grudgeraker"
+      },
+      "on_true": {
+        "type": "minecraft:range_dispatch",
+        "property": "minecraft:use_duration",
+        "scale": 0.05,
+        "entries": [
+          {
+            "model": {
+              "type": "minecraft:model",
+              "model": "warhammermod:item/grudgeraker_reloaded"
+            },
+            "threshold": 2.0
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "warhammermod:item/grudgeraker_reloading"
+        }
+      }
+    }
   }
 }
