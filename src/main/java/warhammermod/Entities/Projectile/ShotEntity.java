@@ -11,7 +11,8 @@ import warhammermod.Items.ItemsInit;
 
 public class ShotEntity extends ProjectileBase {
     public BlockPos Playerpos;
-    private int timer;
+    // ticks since spawn; drives the damage falloff in onHitEntity via damagemodifier(timer)
+    private int timer = 0;
 
     public ShotEntity(Level world) {
         super(Entityinit.Shotentity, world);
